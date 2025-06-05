@@ -1,30 +1,47 @@
 import mongoose from "mongoose";
-import { Schema, model, connect } from "mongoose";
+import { Schema, model } from "mongoose";
+import dotenv from "dotenv";
+dotenv.config();
 
-const UserSchema = new Schema({
-  username: { type: String, required: true },
-  //   email: { type: String, required: true, unique: true },
+mongoose.connect(process.env.MONGODB_URI as string);
+
+const userSchema = new Schema({
+  username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
 });
 
-const ContentSchema = new Schema({
+const contentTypes = ["image", "video", "audio", "article"];
+
+const contentSchema = new Schema({
+  // type: { type: String, enum: contentTypes, required: true },
+  title: { type: String, required: true },
   link: { type: String, required: true },
-  type: { type: String, required: true },
-  title: { type: String, required: true },
-  tags: { type: mongoose.Schema.Types.ObjectId, ref: "Tag", required: true },
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  tags: [{ type: mongoose.Schema.Types.ObjectId, ref: "Tag", required: true }],
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+    // validate: async function (value: any) {
+    //   const user = await User.findById(value);
+    //   if (!user) {
+    //     throw new Error("User not found");
+    //   }
+    // },
+  },
 });
 
-const TagSchema = new Schema({
+const tagSchema = new Schema({
   title: { type: String, required: true },
 });
 
-const LinkSchema = new Schema({
+const linkSchema = new Schema({
   hash: { type: String, required: true },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
 });
 
-const User = model("User", UserSchema);
-const Content = model("Content", ContentSchema);
-const Tag = model("Tag", TagSchema);
-const Link = model("Link", LinkSchema);
+const User = model("User", userSchema);
+const Content = model("Content", contentSchema);
+const Tag = model("Tag", tagSchema);
+const Link = model("Link", linkSchema);
+
+export { Tag, User, Content, Link };
