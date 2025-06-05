@@ -1,7 +1,8 @@
 import express from "express";
 import jwt from "jsonwebtoken";
-import { User } from "./db";
+import { Content, User } from "./db";
 import dotenv from "dotenv";
+import { userMiddleware } from "./middleware";
 dotenv.config();
 
 const app = express();
@@ -29,9 +30,39 @@ app.post("/api/v1/signin", async (req, res) => {
     res.status(401).json({ error: "Invalid username or password" });
   }
 });
-app.post("/api/v1/content", (req, res) => {});
-app.get("/api/v1/content", (req, res) => {});
-app.delete("/api/v1/content", (req, res) => {});
+//@ts-ignore
+app.post("/api/v1/content", userMiddleware, async (req, res) => {
+  const link = req.body.link;
+  const title = req.body.title;
+  await Content.create({
+    link,
+    title,
+    //@ts-ignore
+    userId: req.userId, // assuming req.userId is set by the middleware
+    tags: [], // assuming tags are passed in the request body
+  });
+  return res.json({
+    message: "Content created successfully",
+  });
+});
+
+//@ts-ignore
+app.get("/api/v1/content", userMiddleware, async (req, res) => {
+  //@ts-ignore
+  const userId = req.userId;
+  const content = await Content.find({ userId: userId }).populate("userId", "username");
+  // populate is used to get the username from the User collection as mongodb relations are used in the Content schema
+  return res.json(content);
+});
+
+//@ts-ignore
+app.delete("/api/v1/content", userMiddleware, async (req, res) => {
+  //@ts-ignore
+  const userId = req.userId;
+  const contentId = req.body.contentId;
+  await Content.deleteOne({ _id: contentId, userId: userId });
+  return res.json({ message: "Content deleted successfully" });
+});
 
 app.post("/api/v1/brain/share", (req, res) => {});
 app.get("/api/v1/brain/:shareLink", (req, res) => {});
