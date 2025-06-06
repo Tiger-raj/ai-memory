@@ -4,7 +4,7 @@ interface ButtonProps {
   variant: "primary" | "secondary";
   size: "sm" | "md" | "lg";
   text: string;
-  onClick: () => void;
+  onClick?: () => void;
   startIcon?: ReactElement;
   endIcon?: ReactElement;
 }
