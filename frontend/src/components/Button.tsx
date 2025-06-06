@@ -1,15 +1,16 @@
+import type { ReactElement } from "react";
+
 interface ButtonProps {
   variant: "primary" | "secondary";
   size: "sm" | "md" | "lg";
   text: string;
   onClick: () => void;
-  startIcon?: React.ReactNode;
-  endIcon?: React.ReactNode;
+  startIcon?: ReactElement;
+  endIcon?: ReactElement;
 }
-
 const variantStyles = {
   primary: "bg-purple-600 text-white",
-  secondary: "bg-purple-300 text-purple-500",
+  secondary: "bg-purple-200 text-purple-600",
 };
 
 const sizeStyles = {
@@ -18,18 +19,14 @@ const sizeStyles = {
   lg: "px-6 py-3 text-lg",
 };
 
-const defaultStyles = "m-2 rounded-md flex";
+const defaultStyles = "m-2 rounded-md flex items-center";
 
 export const Button = (props: ButtonProps) => {
   return (
     <button className={`${variantStyles[props.variant]} ${sizeStyles[props.size]} ${defaultStyles}`} onClick={props.onClick}>
-      <div className="flex items-center">
-        {props.startIcon}
-        <div className="px-2">{props.text}</div>
-        {props.endIcon}
-      </div>
+      {props.startIcon}
+      <div className="px-2">{props.text}</div>
+      {props.endIcon}
     </button>
   );
 };
-
-<Button variant="primary" size="md" text="Click Me" onClick={() => console.log("Button clicked")} />;

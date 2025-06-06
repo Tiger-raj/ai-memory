@@ -1,12 +1,14 @@
-import "./App.css";
-import { Button } from "./components/ui/Button";
+import { Button } from "./components/Button";
+import { Card } from "./components/Card";
 import { PlusIcon } from "./icons/PlusIcon";
+import { ShareIcon } from "./icons/ShareIcon";
 
 function App() {
   return (
     <>
-      <Button startIcon={<PlusIcon />} variant="secondary" size="lg" text="Click Me" onClick={() => console.log("Button clicked")} />
-      <Button startIcon={<PlusIcon />} variant="primary" size="md" text="Click Me" onClick={() => console.log("Primary button clicked")} />
+      <Button startIcon={<PlusIcon />} variant="primary" size="md" text="Add content" onClick={() => console.log("Button clicked")} />
+      <Button startIcon={<ShareIcon />} variant="secondary" size="md" text="Share Memory" onClick={() => console.log("Secondary button clicked")} />
+      <Card />
     </>
   );
 }
