@@ -16,7 +16,9 @@ export const userMiddleware = (req: Request, res: Response, next: NextFunction) 
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
-    //@ts-ignore
+    if (typeof decoded !== "object" || !("userId" in decoded)) {
+      return res.status(401).json({ error: "Invalid token structure" });
+    }
     req.userId = decoded.userId;
     next();
   } catch (error) {

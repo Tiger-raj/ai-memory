@@ -1,3 +1,11 @@
+declare global {
+  namespace Express {
+    export interface Request {
+      userId?: string; // This will be set by the userMiddleware
+    }
+  }
+}
+
 import express from "express";
 import jwt from "jsonwebtoken";
 import { Content, User } from "./db";
@@ -37,7 +45,6 @@ app.post("/api/v1/content", userMiddleware, async (req, res) => {
   await Content.create({
     link,
     title,
-    //@ts-ignore
     userId: req.userId, // assuming req.userId is set by the middleware
     tags: [], // assuming tags are passed in the request body
   });
