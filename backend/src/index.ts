@@ -6,17 +6,18 @@ declare global {
   }
 }
 
-import express from "express";
+import express, { Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { Content, User } from "./db";
+import { Content, Link, User } from "./db";
 import dotenv from "dotenv";
 import { userMiddleware } from "./middleware";
+import { random } from "./utils";
 dotenv.config();
 
 const app = express();
 app.use(express.json());
 
-app.post("/api/v1/signup", async (req, res) => {
+app.post("/api/v1/signup", async (req: Request, res: Response) => {
   // do zod validation and hash the password
 
   const { username, password } = req.body;
@@ -28,7 +29,7 @@ app.post("/api/v1/signup", async (req, res) => {
   }
 });
 
-app.post("/api/v1/signin", async (req, res) => {
+app.post("/api/v1/signin", async (req: Request, res: Response) => {
   const { username, password } = req.body;
   const existingUser = await User.findOne({ username, password });
   if (existingUser) {
@@ -38,41 +39,86 @@ app.post("/api/v1/signin", async (req, res) => {
     res.status(401).json({ error: "Invalid username or password" });
   }
 });
-//@ts-ignore
-app.post("/api/v1/content", userMiddleware, async (req, res) => {
+
+app.post("/api/v1/content", userMiddleware, async (req: Request, res: Response) => {
   const link = req.body.link;
   const title = req.body.title;
   await Content.create({
     link,
     title,
-    userId: req.userId, // assuming req.userId is set by the middleware
-    tags: [], // assuming tags are passed in the request body
+    userId: req.userId,
+    tags: [],
   });
-  return res.json({
+  res.json({
     message: "Content created successfully",
   });
 });
 
-//@ts-ignore
-app.get("/api/v1/content", userMiddleware, async (req, res) => {
-  //@ts-ignore
+app.get("/api/v1/content", userMiddleware, async (req: Request, res: Response) => {
   const userId = req.userId;
   const content = await Content.find({ userId: userId }).populate("userId", "username");
-  // populate is used to get the username from the User collection as mongodb relations are used in the Content schema
-  return res.json(content);
+  // populate is used to get the username from the User collection as mongodb relations are used in the Content schema and the second parameter specifies which fields to populate from user model (we don't want to expose the password)
+  res.json(content);
 });
 
-//@ts-ignore
-app.delete("/api/v1/content", userMiddleware, async (req, res) => {
-  //@ts-ignore
-  const userId = req.userId;
+app.delete("/api/v1/content", userMiddleware, async (req: Request, res: Response) => {
   const contentId = req.body.contentId;
-  await Content.deleteOne({ _id: contentId, userId: userId });
-  return res.json({ message: "Content deleted successfully" });
+  await Content.deleteOne({ _id: contentId, userId: req.userId });
+  res.json({ message: "Content deleted successfully" });
 });
 
-app.post("/api/v1/brain/share", (req, res) => {});
-app.get("/api/v1/brain/:shareLink", (req, res) => {});
+app.post("/api/v1/brain/share", userMiddleware, async (req: Request, res: Response) => {
+  const share = req.body.share;
+  if (share) {
+    const existingLink = await Link.findOne({ userId: req.userId });
+    if (existingLink) {
+      res.json({
+        message: "Share link already exists",
+        shareLink: existingLink.hash,
+      });
+      return;
+    }
+    let link = random(10);
+    await Link.create({
+      hash: link,
+      userId: req.userId,
+    });
+    res.json({
+      message: "Share link created successfully",
+      shareLink: link,
+    });
+  } else {
+    await Link.deleteOne({ userId: req.userId });
+    res.json({
+      message: "Share link deleted successfully",
+    });
+  }
+  return;
+});
+
+app.get("/api/v1/brain/:shareLink", async (req: Request, res: Response) => {
+  const shareLink = req.params.shareLink;
+  const link = await Link.findOne({ hash: shareLink });
+  const userId = link?.userId?.toString();
+  if (!userId) {
+    res.status(404).json({ error: "Share link not found" });
+    return;
+  }
+  const user = await User.findById(userId);
+  if (!user) {
+    res.status(404).json({ error: "User not found" });
+    return;
+  }
+  const content = await Content.find({ userId: userId });
+  if (!content) {
+    res.status(404).json({ error: "No content found for this share link" });
+    return;
+  }
+  res.json({
+    username: user.username,
+    content: content,
+  });
+});
 
 app.listen(3000, () => {
   console.log("Server is running on http://localhost:3000");
