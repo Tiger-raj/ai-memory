@@ -45,8 +45,10 @@ app.post("/api/v1/signin", async (req: Request, res: Response) => {
 app.post("/api/v1/content", userMiddleware, async (req: Request, res: Response) => {
   const link = req.body.link;
   const title = req.body.title;
+  const type = req.body.type;
   await Content.create({
     link,
+    type,
     title,
     userId: req.userId,
     tags: [],
