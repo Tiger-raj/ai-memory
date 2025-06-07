@@ -2,6 +2,7 @@
 
 import { CrossIcon } from "../icons/CrossIcon";
 import { Button } from "./Button";
+import { Input } from "./Input";
 
 interface openProps {
   open: boolean;
@@ -22,8 +23,8 @@ export function CreateContentModel({ open, onClose }: openProps) {
               </div>
               <div>
                 {/* input component  */}
-                <Input onChange={(e) => console.log(e.target.value)} placeholder="Enter content link" />
-                <Input onChange={(e) => console.log(e.target.value)} placeholder="Enter content title" />
+                <Input placeholder="Enter content link" />
+                <Input placeholder="Enter content title" />
                 <div className="flex justify-center">
                   <Button
                     variant="primary"
@@ -40,14 +41,6 @@ export function CreateContentModel({ open, onClose }: openProps) {
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-function Input({ onChange, placeholder }: { onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; placeholder: string }) {
-  return (
-    <div>
-      <input type="text" onChange={onChange} placeholder={placeholder} className="border border-gray-300 rounded px-4 py-2 m-2" />
     </div>
   );
 }

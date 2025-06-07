@@ -7,6 +7,8 @@ interface ButtonProps {
   onClick?: () => void;
   startIcon?: ReactElement;
   endIcon?: ReactElement;
+  fullWidth?: boolean;
+  loading?: boolean;
 }
 const variantStyles = {
   primary: "bg-purple-600 text-white",
@@ -23,7 +25,7 @@ const defaultStyles = "m-2 rounded-md flex items-center";
 
 export const Button = (props: ButtonProps) => {
   return (
-    <button className={`${variantStyles[props.variant]} ${sizeStyles[props.size]} ${defaultStyles}`} onClick={props.onClick}>
+    <button className={`${variantStyles[props.variant]} ${sizeStyles[props.size]} ${defaultStyles} ${props.fullWidth ? "w-full flex items-center justify-center" : ""} ${props.loading ? "opacity-45" : ""}`} onClick={props.onClick} disabled={props.loading}>
       {props.startIcon}
       <div className="px-2">{props.text}</div>
       {props.endIcon}

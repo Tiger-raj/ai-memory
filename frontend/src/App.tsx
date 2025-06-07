@@ -1,28 +1,19 @@
-import { useState } from "react";
-import { Button } from "./components/Button";
-import { Card } from "./components/Card";
-import { CreateContentModel } from "./components/CreateContentModel";
-import { PlusIcon } from "./icons/PlusIcon";
-import { ShareIcon } from "./icons/ShareIcon";
-import { Sidebar } from "./components/Sidebar";
+import { Dashboard } from "./pages/Dashboard";
+import { Signin } from "./pages/Signin";
+import { Signup } from "./pages/Signup";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 function App() {
-  const [modalOpen, setModalOpen] = useState(false);
   return (
-    <div>
-      <Sidebar />
-      <div className="p-4 ml-72 min-h-screen bg-gray-100">
-        <CreateContentModel open={modalOpen} onClose={() => setModalOpen(false)} />
-        <div className="flex justify-end gap-4">
-          <Button startIcon={<PlusIcon />} variant="primary" size="md" text="Add content" onClick={() => setModalOpen(true)} />
-          <Button startIcon={<ShareIcon />} variant="secondary" size="md" text="Share Memory" onClick={() => console.log("Secondary button clicked")} />
-        </div>
-        <div className="flex gap-4">
-          <Card title="First Tweet" link="https://x.com/IndiaPostOffice/status/1926489225110663212" type="twitter" />
-          <Card title="First Video" link="https://youtu.be/bXISlqXpTi8?si=7xDePEdRtGTB1jZC" type="youtube" />
-        </div>
-      </div>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/signin" element={<Signin />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/" element={<Signin />} />
+        <Route path="*" element={<Signin />} /> {/* Redirect to 404 page for any unknown routes, create 404 page and replace it here */}
+      </Routes>
+    </BrowserRouter>
   );
 }
 

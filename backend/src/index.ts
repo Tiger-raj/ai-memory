@@ -12,10 +12,12 @@ import { Content, Link, User } from "./db";
 import dotenv from "dotenv";
 import { userMiddleware } from "./middleware";
 import { random } from "./utils";
+import cors from "cors";
 dotenv.config();
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 app.post("/api/v1/signup", async (req: Request, res: Response) => {
   // do zod validation and hash the password
