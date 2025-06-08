@@ -15,6 +15,7 @@ import { userMiddleware } from "./middleware";
 import { random } from "./utils";
 import { signupSchema, signinSchema, contentSchema, shareSchema } from "./validation";
 import cors from "cors";
+
 dotenv.config();
 
 const app = express();
