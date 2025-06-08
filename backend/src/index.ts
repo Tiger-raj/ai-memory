@@ -8,10 +8,12 @@ declare global {
 
 import express, { Request, Response } from "express";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 import { Content, Link, User } from "./db";
 import dotenv from "dotenv";
 import { userMiddleware } from "./middleware";
 import { random } from "./utils";
+import { signupSchema, signinSchema, contentSchema, shareSchema } from "./validation";
 import cors from "cors";
 dotenv.config();
 
@@ -19,43 +21,132 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-app.post("/api/v1/signup", async (req: Request, res: Response) => {
-  // do zod validation and hash the password
+const SALT_ROUNDS = 12;
 
-  const { username, password } = req.body;
+app.post("/api/v1/signup", async (req: Request, res: Response) => {
   try {
-    await User.create({ username, password });
-    res.status(201).json({ message: "User created successfully" });
-  } catch (error) {
-    res.status(411).json({ error: "User already exists." });
+    // Validate input using Zod
+    const validatedData = signupSchema.parse(req.body);
+    const { username, password } = validatedData;
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+      res.status(409).json({ error: "User already exists" });
+      return;
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+
+    // Create user with hashed password
+    await User.create({
+      username,
+      password: hashedPassword,
+    });
+
+    res.status(201).json({
+      message: "User created successfully",
+      username: username,
+    });
+  } catch (error: any) {
+    // Handle Zod validation errors
+    if (error.name === "ZodError") {
+      const firstError = error.errors[0];
+      res.status(400).json({
+        error: "Validation failed",
+        message: firstError.message,
+        field: firstError.path[0],
+      });
+      return;
+    }
+
+    console.error("Signup error:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
 app.post("/api/v1/signin", async (req: Request, res: Response) => {
-  const { username, password } = req.body;
-  const existingUser = await User.findOne({ username, password });
-  if (existingUser) {
-    const token = jwt.sign({ userId: existingUser._id }, process.env.JWT_SECRET as string);
-    res.status(200).json({ token });
-  } else {
-    res.status(401).json({ error: "Invalid username or password" });
+  try {
+    // Validate input using Zod
+    const validatedData = signinSchema.parse(req.body);
+    const { username, password } = validatedData;
+
+    // Find user by username
+    const existingUser = await User.findOne({ username });
+    if (!existingUser) {
+      res.status(401).json({ error: "Invalid username or password" });
+      return;
+    }
+
+    // Compare password with hashed password
+    const isPasswordValid = await bcrypt.compare(password, existingUser.password);
+    if (!isPasswordValid) {
+      res.status(401).json({ error: "Invalid username or password" });
+      return;
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: existingUser._id },
+      process.env.JWT_SECRET as string,
+      { expiresIn: "7d" } // Token expires in 7 days
+    );
+
+    res.status(200).json({
+      token,
+      message: "Signin successful",
+      username: existingUser.username,
+    });
+  } catch (error: any) {
+    // Handle Zod validation errors
+    if (error.name === "ZodError") {
+      const firstError = error.errors[0];
+      res.status(400).json({
+        error: "Validation failed",
+        message: firstError.message,
+        field: firstError.path[0],
+      });
+      return;
+    }
+
+    console.error("Signin error:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
 app.post("/api/v1/content", userMiddleware, async (req: Request, res: Response) => {
-  const link = req.body.link;
-  const title = req.body.title;
-  const type = req.body.type;
-  await Content.create({
-    link,
-    type,
-    title,
-    userId: req.userId,
-    tags: [],
-  });
-  res.json({
-    message: "Content created successfully",
-  });
+  try {
+    // Validate input using Zod
+    const validatedData = contentSchema.parse(req.body);
+    const { link, title, type } = validatedData;
+
+    await Content.create({
+      link,
+      type: type || "document", // Default to document if not specified
+      title,
+      userId: req.userId,
+      tags: [],
+    });
+
+    res.status(201).json({
+      message: "Content created successfully",
+    });
+  } catch (error: any) {
+    // Handle Zod validation errors
+    if (error.name === "ZodError") {
+      const firstError = error.errors[0];
+      res.status(400).json({
+        error: "Validation failed",
+        message: firstError.message,
+        field: firstError.path[0],
+      });
+      return;
+    }
+
+    console.error("Content creation error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 app.get("/api/v1/content", userMiddleware, async (req: Request, res: Response) => {
@@ -80,30 +171,49 @@ app.delete("/api/v1/content", userMiddleware, async (req: Request, res: Response
 });
 
 app.post("/api/v1/brain/share", userMiddleware, async (req: Request, res: Response) => {
-  const share = req.body.share;
-  if (share) {
-    const existingLink = await Link.findOne({ userId: req.userId });
-    if (existingLink) {
+  try {
+    // Validate input using Zod
+    const validatedData = shareSchema.parse(req.body);
+    const { share } = validatedData;
+
+    if (share) {
+      const existingLink = await Link.findOne({ userId: req.userId });
+      if (existingLink) {
+        res.json({
+          message: "Share link already exists",
+          hash: existingLink.hash,
+        });
+        return;
+      }
+      let hash = random(10);
+      await Link.create({
+        hash: hash,
+        userId: req.userId,
+      });
       res.json({
-        message: "Share link already exists",
-        hash: existingLink.hash,
+        message: "Share link created successfully",
+        hash: hash,
+      });
+    } else {
+      await Link.deleteOne({ userId: req.userId });
+      res.json({
+        message: "Share link deleted successfully",
+      });
+    }
+  } catch (error: any) {
+    // Handle Zod validation errors
+    if (error.name === "ZodError") {
+      const firstError = error.errors[0];
+      res.status(400).json({
+        error: "Validation failed",
+        message: firstError.message,
+        field: firstError.path[0],
       });
       return;
     }
-    let hash = random(10);
-    await Link.create({
-      hash: hash,
-      userId: req.userId,
-    });
-    res.json({
-      message: "Share link created successfully",
-      hash: hash,
-    });
-  } else {
-    await Link.deleteOne({ userId: req.userId });
-    res.json({
-      message: "Share link deleted successfully",
-    });
+
+    console.error("Share toggle error:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 

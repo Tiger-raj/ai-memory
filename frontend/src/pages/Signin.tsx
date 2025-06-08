@@ -3,7 +3,7 @@ import { Button } from "../components/Button";
 import { Input } from "../components/Input";
 import axios from "axios";
 import { BACKEND_URL } from "../config";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 export function Signin() {
   const usernameRef = useRef<HTMLInputElement>(null);
@@ -33,6 +33,14 @@ export function Signin() {
         <Input placeholder="Password" ref={passwordRef} />
         <div className="flex justify-center items-center mt-4">
           <Button loading={false} variant="primary" size="md" text="Sign In" onClick={handleSignin} fullWidth />
+        </div>
+        <div style={{ textAlign: "center", marginTop: "20px" }}>
+          <p>
+            Not a user?{" "}
+            <Link to="/signup" style={{ color: "#007bff", textDecoration: "none" }}>
+              Sign up
+            </Link>
+          </p>
         </div>
       </div>
     </div>

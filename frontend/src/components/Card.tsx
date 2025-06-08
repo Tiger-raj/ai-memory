@@ -6,7 +6,7 @@ interface CardProps {
   _id: string;
   title: string;
   link: string;
-  type: "twitter" | "youtube";
+  type: string;
   onDelete: (id: string, title: string) => void;
 }
 
