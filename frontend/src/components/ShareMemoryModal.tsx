@@ -10,9 +10,10 @@ interface ShareMemoryModalProps {
   onEnableSharing: () => Promise<void>;
   onDisableSharing: () => Promise<void>;
   isLoading: boolean;
+  isModalLoading?: boolean;
 }
 
-export function ShareMemoryModal({ open, onClose, shareUrl, onEnableSharing, onDisableSharing, isLoading }: ShareMemoryModalProps) {
+export function ShareMemoryModal({ open, onClose, shareUrl, onEnableSharing, onDisableSharing, isLoading, isModalLoading = false }: ShareMemoryModalProps) {
   const [copyFeedback, setCopyFeedback] = useState(false);
 
   const handleCopyLink = async () => {
@@ -38,7 +39,15 @@ export function ShareMemoryModal({ open, onClose, shareUrl, onEnableSharing, onD
 
         {/* Content */}
         <div className="p-6">
-          {!shareUrl ? (
+          {isModalLoading ? (
+            // Loading state while checking sharing status
+            <div className="space-y-4">
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+              </div>
+              <p className="text-center text-gray-600 text-sm">Checking sharing status...</p>
+            </div>
+          ) : !shareUrl ? (
             // Not shared yet
             <div className="space-y-4">
               <p className="text-gray-600 text-sm">Enable sharing to generate a link that allows others to access your brain.</p>

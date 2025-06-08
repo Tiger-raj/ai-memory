@@ -21,6 +21,7 @@ export function Dashboard() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [shareLoading, setShareLoading] = useState(false);
+  const [shareModalLoading, setShareModalLoading] = useState(false);
   const { content, fetchContent } = useContent(selectedContentType);
 
   // Check if memory is already shared on component mount
@@ -37,9 +38,12 @@ export function Dashboard() {
       });
       if (response.data.hash) {
         setShareUrl(`${window.location.origin}/share/${response.data.hash}`);
+      } else {
+        setShareUrl(null);
       }
     } catch (error) {
       console.error("Error checking sharing status:", error);
+      setShareUrl(null);
     }
   };
 
@@ -133,6 +137,14 @@ export function Dashboard() {
     setContentToDelete(null);
   };
 
+  const handleShareModalOpen = async () => {
+    setShareModalOpen(true);
+    setShareModalLoading(true);
+    // Check sharing status every time the modal opens
+    await checkSharingStatus();
+    setShareModalLoading(false);
+  };
+
   return (
     <div className="relative">
       {/* Mobile Menu Overlay */}
@@ -165,11 +177,11 @@ export function Dashboard() {
 
           <DeleteConfirmationModal open={deleteModalOpen} onClose={handleDeleteCancel} onConfirm={handleDeleteConfirm} title={contentToDelete?.title || ""} />
 
-          <ShareMemoryModal open={shareModalOpen} onClose={() => setShareModalOpen(false)} shareUrl={shareUrl} onEnableSharing={handleEnableSharing} onDisableSharing={handleDisableSharing} isLoading={shareLoading} />
+          <ShareMemoryModal open={shareModalOpen} onClose={() => setShareModalOpen(false)} shareUrl={shareUrl} onEnableSharing={handleEnableSharing} onDisableSharing={handleDisableSharing} isLoading={shareLoading} isModalLoading={shareModalLoading} />
 
           <div className="flex flex-col sm:flex-row justify-end gap-4">
             <Button startIcon={<PlusIcon />} variant="primary" size="md" text="Add content" onClick={() => setModalOpen(true)} />
-            <Button startIcon={<ShareIcon />} variant="secondary" size="md" text="Share Memory" onClick={() => setShareModalOpen(true)} />
+            <Button startIcon={<ShareIcon />} variant="secondary" size="md" text="Share Memory" onClick={handleShareModalOpen} />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-4">
             {content.map(({ _id, type, link, title }) => (

@@ -11,6 +11,8 @@ interface CardProps {
 }
 
 export function Card({ _id, title, link, type, onDelete }: CardProps) {
+  const isDeleteDisabled = !onDelete || onDelete.toString() === "() => {}";
+
   return (
     <div>
       <div className="bg-white rounded-md border border-gray-300 p-4 w-full min-h-48">
@@ -27,9 +29,11 @@ export function Card({ _id, title, link, type, onDelete }: CardProps) {
                 <LinkIcon />
               </a>
             </div>
-            <div className="text-gray-500 pr-2 hover:text-red-500 cursor-pointer" onClick={() => onDelete(_id, title)}>
-              <DeleteIcon />
-            </div>
+            {!isDeleteDisabled && (
+              <div className="text-gray-500 pr-2 hover:text-red-500 cursor-pointer" onClick={() => onDelete(_id, title)}>
+                <DeleteIcon />
+              </div>
+            )}
           </div>
         </div>
         <div>
