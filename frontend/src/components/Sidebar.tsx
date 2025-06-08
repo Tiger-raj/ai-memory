@@ -5,6 +5,11 @@ import { TwitterIcon } from "../icons/TwitterIcon";
 import { YoutubeIcon } from "../icons/YoutubeIcon";
 import { CrossIcon } from "../icons/CrossIcon";
 import { SideBarItem } from "./SidebarItem";
+import { LinkedInIcon } from "../icons/LinkedInIcon";
+import { InstagramIcon } from "../icons/InstagramIcon";
+import { PinterestIcon } from "../icons/PinterestIcon";
+import { DocumentIcon } from "../icons/DocumentIcon";
+import { LinkIcon } from "../icons/LinkIcon";
 
 interface SidebarProps {
   onContentTypeChange: (contentType: string) => void;
@@ -32,8 +37,13 @@ export function Sidebar({ onContentTypeChange, selectedType, onClose }: SidebarP
         </div>
         <div className="pt-8 pl-4">
           <SideBarItem text="Home" icon={<HomeIcon />} onClick={() => onContentTypeChange("home")} isSelected={selectedType === "home"} />
+          <SideBarItem text="Documents" icon={<DocumentIcon />} onClick={() => onContentTypeChange("document")} isSelected={selectedType === "document"} />
           <SideBarItem text="Youtube" icon={<YoutubeIcon />} onClick={() => onContentTypeChange("youtube")} isSelected={selectedType === "youtube"} />
           <SideBarItem text="Twitter" icon={<TwitterIcon />} onClick={() => onContentTypeChange("twitter")} isSelected={selectedType === "twitter"} />
+          <SideBarItem text="Pinterest" icon={<PinterestIcon />} onClick={() => onContentTypeChange("pinterest")} isSelected={selectedType === "pinterest"} />
+          <SideBarItem text="LinkedIn" icon={<LinkedInIcon />} onClick={() => onContentTypeChange("linkedin")} isSelected={selectedType === "linkedin"} />
+          <SideBarItem text="Instagram" icon={<InstagramIcon />} onClick={() => onContentTypeChange("instagram")} isSelected={selectedType === "instagram"} />
+          <SideBarItem text="Links" icon={<LinkIcon />} onClick={() => onContentTypeChange("link")} isSelected={selectedType === "link"} />
         </div>
       </div>
       <div className="pl-4 mb-4">

@@ -22,8 +22,9 @@ export const signinSchema = z.object({
 
 export const contentSchema = z.object({
   title: z.string().min(1, "Title is required").max(200, "Title must be at most 200 characters"),
-  link: z.string().url("Link must be a valid URL"),
-  type: z.enum(["youtube", "twitter", "document", "image", "video", "audio", "article"]).optional(),
+  link: z.string().url("Link must be a valid URL").optional().or(z.literal("")),
+  type: z.enum(["youtube", "twitter", "pinterest", "linkedin", "document", "link", "instagram"]),
+  description: z.string().max(1000, "Description must be at most 1000 characters").optional(),
 });
 
 export const shareSchema = z.object({

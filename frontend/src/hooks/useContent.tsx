@@ -1,8 +1,16 @@
 import { useEffect, useState } from "react";
 import { BACKEND_URL } from "../config";
 
+interface ContentItem {
+  _id: string;
+  type: string;
+  link: string;
+  title: string;
+  description?: string;
+}
+
 export function useContent(contentType?: string) {
-  const [content, setContent] = useState([]);
+  const [content, setContent] = useState<ContentItem[]>([]);
   async function fetchContent() {
     try {
       // Build URL with optional query parameter for content type

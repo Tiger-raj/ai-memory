@@ -16,7 +16,8 @@ const contentSchema = new Schema({
   // type: { type: String, enum: contentTypes, required: true },
   type: { type: String },
   title: { type: String, required: true },
-  link: { type: String, required: true },
+  link: { type: String },
+  description: { type: String, default: "" },
   tags: [{ type: mongoose.Schema.Types.ObjectId, ref: "Tag", required: true }],
   userId: {
     type: mongoose.Schema.Types.ObjectId,

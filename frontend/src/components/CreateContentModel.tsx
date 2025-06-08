@@ -10,63 +10,92 @@ interface openProps {
   onClose: () => void;
 }
 
-type ContentType = "youtube" | "twitter";
+type ContentType = "youtube" | "twitter" | "pinterest" | "linkedin" | "document" | "link" | "instagram";
 
 export function CreateContentModel({ open, onClose }: openProps) {
   const titleRef = useRef<HTMLInputElement>(null);
   const linkRef = useRef<HTMLInputElement>(null);
-  const [type, setType] = useState<ContentType>("youtube");
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
+  const [type, setType] = useState<ContentType>("document");
 
   async function addContent() {
     const title = titleRef.current?.value;
     const link = linkRef.current?.value;
-    if (title && link) {
-      const content = {
-        title,
-        link,
-        type,
-      };
-      // make it try catch block
-      try {
-        await axios.post(`${BACKEND_URL}/api/v1/content`, content, {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
-        console.log("Content added:", content);
-        onClose();
-      } catch (error) {
-        console.error("Error adding content:", error);
-      }
-    } else {
-      console.error("Title and link are required");
+    const description = descriptionRef.current?.value;
+
+    if (!title) {
+      alert("Title is required");
+      return;
+    }
+
+    // For document type, link is optional
+    if (type !== "document" && !link) {
+      alert("Link is required for this content type");
+      return;
+    }
+
+    const content = {
+      title,
+      link: link || "",
+      type,
+      description: description || "",
+    };
+
+    try {
+      await axios.post(`${BACKEND_URL}/api/v1/content`, content, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      console.log("Content added:", content);
+      onClose();
+    } catch (error) {
+      console.error("Error adding content:", error);
     }
   }
 
   return (
     <div>
       {open && (
-        <div className="w-screen h-screen bg-white/20 backdrop-blur-sm fixed top-0 left-0 flex justify-center">
+        <div className="w-screen h-screen bg-white/20 backdrop-blur-sm fixed top-0 left-0 flex justify-center z-50">
           <div className="flex flex-col justify-center">
-            <div className="bg-white p-4 rounded">
-              <div className="flex justify-end mb-2">
+            <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+              <div className="flex justify-end mb-4">
                 <button onClick={onClose} className="text-gray-500 hover:text-gray-700 cursor-pointer">
                   <CrossIcon />
                 </button>
               </div>
-              <div>
+              <h2 className="text-xl font-semibold mb-4">Add Content</h2>
+
+              <div className="space-y-4">
                 <Input ref={titleRef} placeholder="Enter content title" />
-                <Input ref={linkRef} placeholder="Enter content link" />
-              </div>
-              <div className="mt-4">
-                <h1 className="text-lg">Select Content Type</h1>
-                <div className="flex justify-between">
-                  <Button variant={type === "youtube" ? "primary" : "secondary"} size="md" text="YouTube" onClick={() => setType("youtube")} />
-                  <Button variant={type === "twitter" ? "primary" : "secondary"} size="md" text="Twitter" onClick={() => setType("twitter")} />
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Content Type</label>
+                  <select value={type} onChange={(e) => setType(e.target.value as ContentType)} className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                    <option value="document">Document</option>
+                    <option value="youtube">YouTube</option>
+                    <option value="twitter">Twitter</option>
+                    <option value="pinterest">Pinterest</option>
+                    <option value="linkedin">LinkedIn</option>
+                    <option value="instagram">Instagram</option>
+                    <option value="link">Link</option>
+                  </select>
                 </div>
+
+                <Input ref={linkRef} placeholder={type === "document" ? "Enter link (optional)" : "Enter content link"} />
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Description (Optional)</label>
+                  <textarea ref={descriptionRef} placeholder="Enter content description..." className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-vertical" rows={4} maxLength={1000} />
+                  <p className="text-xs text-gray-500 mt-1">Maximum 1000 characters</p>
+                </div>
+
+                {type === "document" && <p className="text-sm text-gray-500">For documents, you can leave the link empty if you just want to store text content.</p>}
               </div>
-              <div className="flex justify-center">
+
+              <div className="flex justify-center mt-6">
                 <Button variant="primary" size="md" text="Add Content" onClick={addContent} />
               </div>
             </div>

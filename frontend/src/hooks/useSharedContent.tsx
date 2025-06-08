@@ -6,6 +6,7 @@ interface SharedContent {
   title: string;
   link: string;
   type: string;
+  description?: string;
 }
 
 interface SharedData {
@@ -16,35 +17,30 @@ interface SharedData {
 export function useSharedContent(hash: string | undefined) {
   const [sharedData, setSharedData] = useState<SharedData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-    async function fetchSharedContent() {
-      if (!hash) {
-        setError("Invalid share link");
-        setLoading(false);
-        return;
-      }
+    if (!hash) {
+      setError(true);
+      setLoading(false);
+      return;
+    }
 
+    const fetchSharedContent = async () => {
       try {
-        setLoading(true);
-        setError(null);
-
         const response = await fetch(`${BACKEND_URL}/api/v1/brain/${hash}`);
-
         if (!response.ok) {
           throw new Error("Failed to fetch shared content");
         }
-
         const data = await response.json();
         setSharedData(data);
       } catch (err) {
         console.error("Error fetching shared content:", err);
-        setError("Failed to load shared memory");
+        setError(true);
       } finally {
         setLoading(false);
       }
-    }
+    };
 
     fetchSharedContent();
   }, [hash]);

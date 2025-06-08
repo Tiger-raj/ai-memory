@@ -184,8 +184,8 @@ export function Dashboard() {
             <Button startIcon={<ShareIcon />} variant="secondary" size="md" text="Share Memory" onClick={handleShareModalOpen} />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-4">
-            {content.map(({ _id, type, link, title }) => (
-              <Card key={_id} _id={_id} title={title} link={link} type={type} onDelete={handleDeleteClick} />
+            {content.map(({ _id, type, link, title, description }) => (
+              <Card key={_id} _id={_id} title={title} link={link} type={type} description={description} onDelete={handleDeleteClick} />
             ))}
           </div>
         </div>

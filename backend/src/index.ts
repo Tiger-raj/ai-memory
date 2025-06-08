@@ -119,12 +119,13 @@ app.post("/api/v1/content", userMiddleware, async (req: Request, res: Response) 
   try {
     // Validate input using Zod
     const validatedData = contentSchema.parse(req.body);
-    const { link, title, type } = validatedData;
+    const { link, title, type, description } = validatedData;
 
     await Content.create({
-      link,
+      link: link || "", // Handle empty link for document type
       type: type || "document", // Default to document if not specified
       title,
+      description: description || "",
       userId: req.userId,
       tags: [],
     });
