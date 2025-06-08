@@ -1,30 +1,34 @@
-import { ShareIcon } from "../icons/ShareIcon";
+import { DeleteIcon } from "../icons/DeleteIcon";
+import { LinkIcon } from "../icons/LinkIcon";
+import { DocumentIcon } from "../icons/DocumentIcon";
 
 interface CardProps {
+  _id: string;
   title: string;
   link: string;
   type: "twitter" | "youtube";
+  onDelete: (id: string, title: string) => void;
 }
 
-export function Card({ title, link, type }: CardProps) {
+export function Card({ _id, title, link, type, onDelete }: CardProps) {
   return (
     <div>
       <div className="bg-white rounded-md border border-gray-300 p-4 max-w-96 min-h-48 min-w-72">
         <div className="flex justify-between mb-4">
           <div className="flex items-center">
             <div className="text-gray-500 pr-2">
-              <ShareIcon />
+              <DocumentIcon />
             </div>
             {title}
           </div>
-          <div className="flex items-center">
+          <div className="flex items-center gap-2">
             <div className="text-gray-500 pr-2">
               <a href={link} target="_blank" className="hover:text-blue-500">
-                <ShareIcon />
+                <LinkIcon />
               </a>
             </div>
-            <div className="text-gray-500 pr-2">
-              <ShareIcon />
+            <div className="text-gray-500 pr-2 hover:text-red-500 cursor-pointer" onClick={() => onDelete(_id, title)}>
+              <DeleteIcon />
             </div>
           </div>
         </div>

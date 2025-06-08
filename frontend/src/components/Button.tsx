@@ -1,7 +1,7 @@
 import type { ReactElement } from "react";
 
 interface ButtonProps {
-  variant: "primary" | "secondary";
+  variant: "primary" | "secondary" | "danger";
   size: "sm" | "md" | "lg";
   text: string;
   onClick?: () => void;
@@ -11,8 +11,9 @@ interface ButtonProps {
   loading?: boolean;
 }
 const variantStyles = {
-  primary: "bg-purple-600 text-white",
-  secondary: "bg-purple-200 text-purple-600",
+  primary: "bg-purple-600 text-white hover:bg-purple-700",
+  secondary: "bg-purple-200 text-purple-600 hover:bg-purple-300",
+  danger: "bg-red-600 text-white hover:bg-red-700",
 };
 
 const sizeStyles = {
@@ -21,7 +22,7 @@ const sizeStyles = {
   lg: "px-6 py-3 text-lg",
 };
 
-const defaultStyles = "m-2 rounded-md flex items-center";
+const defaultStyles = "m-2 rounded-md flex items-center transition-colors duration-200";
 
 export const Button = (props: ButtonProps) => {
   return (
