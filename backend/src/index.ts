@@ -86,18 +86,18 @@ app.post("/api/v1/brain/share", userMiddleware, async (req: Request, res: Respon
     if (existingLink) {
       res.json({
         message: "Share link already exists",
-        shareLink: existingLink.hash,
+        hash: existingLink.hash,
       });
       return;
     }
-    let link = random(10);
+    let hash = random(10);
     await Link.create({
-      hash: link,
+      hash: hash,
       userId: req.userId,
     });
     res.json({
       message: "Share link created successfully",
-      shareLink: link,
+      hash: hash,
     });
   } else {
     await Link.deleteOne({ userId: req.userId });
@@ -105,7 +105,23 @@ app.post("/api/v1/brain/share", userMiddleware, async (req: Request, res: Respon
       message: "Share link deleted successfully",
     });
   }
-  return;
+});
+
+app.get("/api/v1/brain/share", userMiddleware, async (req: Request, res: Response) => {
+  try {
+    const existingLink = await Link.findOne({ userId: req.userId });
+    if (existingLink) {
+      res.json({
+        hash: existingLink.hash,
+      });
+    } else {
+      res.json({
+        hash: null,
+      });
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Failed to check sharing status" });
+  }
 });
 
 app.get("/api/v1/brain/:shareLink", async (req: Request, res: Response) => {

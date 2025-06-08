@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "../components/Button";
 import { Card } from "../components/Card";
 import { CreateContentModel } from "../components/CreateContentModel";
 import { DeleteConfirmationModal } from "../components/DeleteConfirmationModal";
+import { ShareMemoryModal } from "../components/ShareMemoryModal";
 import { PlusIcon } from "../icons/PlusIcon";
 import { ShareIcon } from "../icons/ShareIcon";
 import { SidebarIcon } from "../icons/SidebarIcon";
@@ -14,10 +15,79 @@ import { BACKEND_URL } from "../config";
 export function Dashboard() {
   const [modalOpen, setModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
   const [selectedContentType, setSelectedContentType] = useState<string>("home");
   const [contentToDelete, setContentToDelete] = useState<{ id: string; title: string } | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [shareLoading, setShareLoading] = useState(false);
   const { content, fetchContent } = useContent(selectedContentType);
+
+  // Check if memory is already shared on component mount
+  useEffect(() => {
+    checkSharingStatus();
+  }, []);
+
+  const checkSharingStatus = async () => {
+    try {
+      const response = await axios.get(`${BACKEND_URL}/api/v1/brain/share`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      if (response.data.hash) {
+        setShareUrl(`${window.location.origin}/share/${response.data.hash}`);
+      }
+    } catch (error) {
+      console.error("Error checking sharing status:", error);
+    }
+  };
+
+  const handleEnableSharing = async () => {
+    setShareLoading(true);
+    try {
+      const response = await axios.post(
+        `${BACKEND_URL}/api/v1/brain/share`,
+        { share: true },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      const hash = response.data.hash || response.data.shareLink;
+      const newShareUrl = `${window.location.origin}/share/${hash}`;
+      setShareUrl(newShareUrl);
+    } catch (error) {
+      console.error("Error enabling sharing:", error);
+      alert("Failed to enable sharing. Please try again.");
+    } finally {
+      setShareLoading(false);
+    }
+  };
+
+  const handleDisableSharing = async () => {
+    setShareLoading(true);
+    try {
+      await axios.post(
+        `${BACKEND_URL}/api/v1/brain/share`,
+        { share: false },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      setShareUrl(null);
+    } catch (error) {
+      console.error("Error disabling sharing:", error);
+      alert("Failed to disable sharing. Please try again.");
+    } finally {
+      setShareLoading(false);
+    }
+  };
 
   const handleContentTypeChange = (contentType: string) => {
     setSelectedContentType(contentType);
@@ -95,31 +165,11 @@ export function Dashboard() {
 
           <DeleteConfirmationModal open={deleteModalOpen} onClose={handleDeleteCancel} onConfirm={handleDeleteConfirm} title={contentToDelete?.title || ""} />
 
+          <ShareMemoryModal open={shareModalOpen} onClose={() => setShareModalOpen(false)} shareUrl={shareUrl} onEnableSharing={handleEnableSharing} onDisableSharing={handleDisableSharing} isLoading={shareLoading} />
+
           <div className="flex flex-col sm:flex-row justify-end gap-4">
             <Button startIcon={<PlusIcon />} variant="primary" size="md" text="Add content" onClick={() => setModalOpen(true)} />
-            <Button
-              startIcon={<ShareIcon />}
-              variant="secondary"
-              size="md"
-              text="Share Memory"
-              onClick={async () => {
-                const response = await axios.post(
-                  `${BACKEND_URL}/api/v1/brain/share`,
-                  {
-                    share: true,
-                  },
-                  {
-                    headers: {
-                      "Content-Type": "application/json",
-                      Authorization: `Bearer ${localStorage.getItem("token")}`,
-                    },
-                  }
-                );
-                const shareUrl = `https://localhost:5173/share/${response.data.hash}`;
-                navigator.clipboard.writeText(shareUrl);
-                alert("Memory shared! Link copied to clipboard.");
-              }}
-            />
+            <Button startIcon={<ShareIcon />} variant="secondary" size="md" text="Share Memory" onClick={() => setShareModalOpen(true)} />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-4">
             {content.map(({ _id, type, link, title }) => (
