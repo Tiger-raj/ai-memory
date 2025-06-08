@@ -11,11 +11,16 @@ import { BACKEND_URL } from "../config";
 
 export function Dashboard() {
   const [modalOpen, setModalOpen] = useState(false);
-  const { content, fetchContent } = useContent();
+  const [selectedContentType, setSelectedContentType] = useState<string>("home");
+  const { content, fetchContent } = useContent(selectedContentType);
+
+  const handleContentTypeChange = (contentType: string) => {
+    setSelectedContentType(contentType);
+  };
 
   return (
     <div>
-      <Sidebar />
+      <Sidebar onContentTypeChange={handleContentTypeChange} selectedType={selectedContentType} />
       <div className="p-4 ml-72 min-h-screen bg-gray-100">
         <CreateContentModel
           open={modalOpen}

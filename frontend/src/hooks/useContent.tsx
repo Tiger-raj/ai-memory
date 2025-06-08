@@ -1,11 +1,17 @@
 import { useEffect, useState } from "react";
 import { BACKEND_URL } from "../config";
 
-export function useContent() {
+export function useContent(contentType?: string) {
   const [content, setContent] = useState([]);
   async function fetchContent() {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/v1/content`, {
+      // Build URL with optional query parameter for content type
+      const url = contentType && contentType !== "home" ? `${BACKEND_URL}/api/v1/content?type=${contentType}` : `${BACKEND_URL}/api/v1/content`;
+
+      console.log("Fetching content with URL:", url); // Debug log
+      console.log("Content type:", contentType); // Debug log
+
+      const response = await fetch(url, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -15,6 +21,7 @@ export function useContent() {
         throw new Error("Network response was not ok");
       }
       const data = await response.json();
+      console.log("Fetched content:", data); // Debug log
       setContent(data);
     } catch (error) {
       console.error("Error fetching content:", error);
@@ -26,7 +33,7 @@ export function useContent() {
       fetchContent();
     }, 5000); // Fetch content every 5 seconds
     return () => clearInterval(intervalId);
-  }, []);
+  }, [contentType]); // Re-fetch when contentType changes
 
   return { content, fetchContent };
 }

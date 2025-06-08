@@ -60,7 +60,15 @@ app.post("/api/v1/content", userMiddleware, async (req: Request, res: Response) 
 
 app.get("/api/v1/content", userMiddleware, async (req: Request, res: Response) => {
   const userId = req.userId;
-  const content = await Content.find({ userId: userId }).populate("userId", "username");
+  const contentType = req.query.type as string;
+
+  // Build filter object - if contentType is provided, filter by it
+  const filter: any = { userId: userId };
+  if (contentType && contentType !== "home") {
+    filter.type = contentType;
+  }
+
+  const content = await Content.find(filter).populate("userId", "username");
   // populate is used to get the username from the User collection as mongodb relations are used in the Content schema and the second parameter specifies which fields to populate from user model (we don't want to expose the password)
   res.json(content);
 });
