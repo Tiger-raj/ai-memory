@@ -3,22 +3,32 @@ import { Logo } from "../icons/Logo";
 import { LogOutIcon } from "../icons/LogoutIcon";
 import { TwitterIcon } from "../icons/TwitterIcon";
 import { YoutubeIcon } from "../icons/YoutubeIcon";
+import { CrossIcon } from "../icons/CrossIcon";
 import { SideBarItem } from "./SidebarItem";
 
 interface SidebarProps {
   onContentTypeChange: (contentType: string) => void;
   selectedType: string;
+  onClose?: () => void;
 }
 
-export function Sidebar({ onContentTypeChange, selectedType }: SidebarProps) {
+export function Sidebar({ onContentTypeChange, selectedType, onClose }: SidebarProps) {
   return (
-    <div className="h-screen bg-white border-r w-72 fixed left-0 top-0 pl-6 flex flex-col justify-between">
+    <div className="h-screen bg-white border-r w-72 left-0 top-0 pl-6 flex flex-col justify-between">
       <div>
-        <div className="flex items-center text-2xl pt-8">
-          <div className="text-purple-600">
-            <Logo />
+        <div className="flex items-center justify-between text-2xl pt-8">
+          <div className="flex items-center">
+            <div className="text-purple-600">
+              <Logo />
+            </div>
+            <span className="ml-2">Ai-Memory</span>
           </div>
-          <span className="ml-2">Ai-Memory</span>
+          {/* Close button for mobile */}
+          {onClose && (
+            <button onClick={onClose} className="md:hidden text-gray-500 hover:text-gray-700 mr-6">
+              <CrossIcon />
+            </button>
+          )}
         </div>
         <div className="pt-8 pl-4">
           <SideBarItem text="Home" icon={<HomeIcon />} onClick={() => onContentTypeChange("home")} isSelected={selectedType === "home"} />

@@ -5,6 +5,7 @@ import { CreateContentModel } from "../components/CreateContentModel";
 import { DeleteConfirmationModal } from "../components/DeleteConfirmationModal";
 import { PlusIcon } from "../icons/PlusIcon";
 import { ShareIcon } from "../icons/ShareIcon";
+import { SidebarIcon } from "../icons/SidebarIcon";
 import { Sidebar } from "../components/Sidebar";
 import { useContent } from "../hooks/useContent";
 import axios from "axios";
@@ -15,10 +16,13 @@ export function Dashboard() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedContentType, setSelectedContentType] = useState<string>("home");
   const [contentToDelete, setContentToDelete] = useState<{ id: string; title: string } | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { content, fetchContent } = useContent(selectedContentType);
 
   const handleContentTypeChange = (contentType: string) => {
     setSelectedContentType(contentType);
+    // Close mobile menu when content type changes
+    setMobileMenuOpen(false);
   };
 
   const handleDeleteClick = (id: string, title: string) => {
@@ -60,49 +64,68 @@ export function Dashboard() {
   };
 
   return (
-    <div>
-      <Sidebar onContentTypeChange={handleContentTypeChange} selectedType={selectedContentType} />
-      <div className="p-4 ml-72 min-h-screen bg-gray-100">
-        <CreateContentModel
-          open={modalOpen}
-          onClose={() => {
-            setModalOpen(false);
-            fetchContent();
-          }}
-        />
+    <div className="relative">
+      {/* Mobile Menu Overlay */}
+      {mobileMenuOpen && <div className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden" onClick={() => setMobileMenuOpen(false)} />}
 
-        <DeleteConfirmationModal open={deleteModalOpen} onClose={handleDeleteCancel} onConfirm={handleDeleteConfirm} title={contentToDelete?.title || ""} />
+      {/* Sidebar - Hidden on small screens, overlay on mobile when open */}
+      <div className={`${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 transition-transform duration-300 ease-in-out fixed z-50 md:z-auto`}>
+        <Sidebar onContentTypeChange={handleContentTypeChange} selectedType={selectedContentType} onClose={() => setMobileMenuOpen(false)} />
+      </div>
 
-        <div className="flex justify-end gap-4">
-          <Button startIcon={<PlusIcon />} variant="primary" size="md" text="Add content" onClick={() => setModalOpen(true)} />
-          <Button
-            startIcon={<ShareIcon />}
-            variant="secondary"
-            size="md"
-            text="Share Memory"
-            onClick={async () => {
-              const response = await axios.post(
-                `${BACKEND_URL}/api/v1/brain/share`,
-                {
-                  share: true,
-                },
-                {
-                  headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
-                  },
-                }
-              );
-              const shareUrl = `https://localhost:5173/share/${response.data.hash}`;
-              navigator.clipboard.writeText(shareUrl);
-              alert("Memory shared! Link copied to clipboard.");
+      {/* Main content area */}
+      <div className={`min-h-screen bg-gray-100 transition-all duration-300 ${mobileMenuOpen ? "blur-sm md:blur-none" : ""} ml-0 md:ml-72`}>
+        {/* Mobile header with menu button */}
+        <div className="md:hidden bg-white shadow-sm p-4 flex items-center justify-between">
+          <button onClick={() => setMobileMenuOpen(true)} className="text-gray-700 hover:text-gray-900 transition-colors">
+            <SidebarIcon />
+          </button>
+          <h1 className="text-lg font-semibold text-gray-800">Ai-Memory</h1>
+          <div className="w-6"></div> {/* Spacer for center alignment */}
+        </div>
+
+        <div className="p-4">
+          <CreateContentModel
+            open={modalOpen}
+            onClose={() => {
+              setModalOpen(false);
+              fetchContent();
             }}
           />
-        </div>
-        <div className="flex gap-4 flex-wrap mt-4">
-          {content.map(({ _id, type, link, title }) => (
-            <Card key={_id} _id={_id} title={title} link={link} type={type} onDelete={handleDeleteClick} />
-          ))}
+
+          <DeleteConfirmationModal open={deleteModalOpen} onClose={handleDeleteCancel} onConfirm={handleDeleteConfirm} title={contentToDelete?.title || ""} />
+
+          <div className="flex flex-col sm:flex-row justify-end gap-4">
+            <Button startIcon={<PlusIcon />} variant="primary" size="md" text="Add content" onClick={() => setModalOpen(true)} />
+            <Button
+              startIcon={<ShareIcon />}
+              variant="secondary"
+              size="md"
+              text="Share Memory"
+              onClick={async () => {
+                const response = await axios.post(
+                  `${BACKEND_URL}/api/v1/brain/share`,
+                  {
+                    share: true,
+                  },
+                  {
+                    headers: {
+                      "Content-Type": "application/json",
+                      Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                  }
+                );
+                const shareUrl = `https://localhost:5173/share/${response.data.hash}`;
+                navigator.clipboard.writeText(shareUrl);
+                alert("Memory shared! Link copied to clipboard.");
+              }}
+            />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-4">
+            {content.map(({ _id, type, link, title }) => (
+              <Card key={_id} _id={_id} title={title} link={link} type={type} onDelete={handleDeleteClick} />
+            ))}
+          </div>
         </div>
       </div>
     </div>
