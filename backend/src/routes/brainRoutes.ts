@@ -4,11 +4,11 @@ import { userMiddleware } from "../middleware/authMiddleware";
 
 const router = Router();
 
-// Put specific routes before parameterized routes
+// Share management routes (protected)
 router.post("/share", userMiddleware, toggleShare);
 router.get("/share", userMiddleware, getShareStatus);
 
-// Use a more specific parameter name and put it last
-router.get("/shared/:hash", getSharedBrain);
+// Public shared brain route (no auth required)
+router.get("/share/:hash", getSharedBrain);
 
 export default router;

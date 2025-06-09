@@ -4,6 +4,7 @@ import { userMiddleware } from "../middleware/authMiddleware";
 
 const router = Router();
 
+// Query route
 router.post("/", userMiddleware, handleQuery);
 
 export default router;

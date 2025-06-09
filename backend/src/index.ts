@@ -11,10 +11,17 @@ dotenv.config();
 const PORT = process.env.PORT || 5000;
 
 const app = express();
-app.use(express.json());
 
-// Configure CORS to allow only specific origins
-const allowedOrigins = ["https://ai-memory-five.vercel.app", "http://localhost:3000"];
+// Basic middleware
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
+// Configure CORS
+const allowedOrigins = [
+  "https://ai-memory-five.vercel.app",
+  "http://localhost:3000",
+  "http://localhost:5173", // Add Vite dev server default port
+];
 
 app.use(
   cors({
@@ -34,27 +41,41 @@ app.use(
   })
 );
 
-// Handle preflight requests
-app.options("*", (req, res) => {
-  res.header("Access-Control-Allow-Origin", req.headers.origin);
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  res.header("Access-Control-Allow-Credentials", "true");
-  res.sendStatus(200);
+// Health check route
+app.get("/", (req, res) => {
+  res.json({ message: "AI Memory Backend is running!", status: "healthy" });
 });
 
-// Routes
+app.get("/health", (req, res) => {
+  res.json({ status: "healthy", timestamp: new Date().toISOString() });
+});
+
+// API Routes
 app.use("/api/v1", authRoutes);
 app.use("/api/v1/content", contentRoutes);
 app.use("/api/v1/brain", brainRoutes);
 app.use("/api/v1/query", queryRoutes);
+
+// 404 handler for API routes
+app.use("/api/*", (req, res) => {
+  res.status(404).json({ error: "API endpoint not found" });
+});
+
+// Global error handler
+app.use((error: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error("Global error handler:", error);
+  res.status(500).json({
+    error: "Internal server error",
+    message: process.env.NODE_ENV === "development" ? error.message : "Something went wrong",
+  });
+});
 
 // Initialize database connection and start server
 const startServer = async () => {
   try {
     await connectDatabase();
     app.listen(PORT, () => {
-      console.log(`Server is running on ${PORT}`);
+      console.log(`🚀 Server is running on port ${PORT}`);
     });
   } catch (error) {
     console.error("Failed to start server:", error);
