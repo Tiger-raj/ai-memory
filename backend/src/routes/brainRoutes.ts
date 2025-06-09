@@ -4,8 +4,11 @@ import { userMiddleware } from "../middleware/authMiddleware";
 
 const router = Router();
 
+// Put specific routes before parameterized routes
 router.post("/share", userMiddleware, toggleShare);
 router.get("/share", userMiddleware, getShareStatus);
-router.get("/:shareLink", getSharedBrain);
+
+// Use a more specific parameter name and put it last
+router.get("/shared/:hash", getSharedBrain);
 
 export default router;

@@ -71,14 +71,14 @@ export const getShareStatus = async (req: Request, res: Response) => {
 
 export const getSharedBrain = async (req: Request, res: Response) => {
   try {
-    const shareLink = req.params.shareLink;
+    const shareHash = req.params.hash; // Changed from shareLink to hash
 
-    if (!shareLink) {
+    if (!shareHash) {
       res.status(400).json({ error: "Share hash is required" });
       return;
     }
 
-    const link = await Link.findOne({ hash: shareLink });
+    const link = await Link.findOne({ hash: shareHash }); // Changed variable name
 
     if (!link) {
       res.status(404).json({ error: "Share link not found" });
