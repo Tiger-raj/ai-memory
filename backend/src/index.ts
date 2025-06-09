@@ -70,12 +70,36 @@ app.use((error: any, req: express.Request, res: express.Response, next: express.
   });
 });
 
+// Utility to print all registered routes for debugging
+function printRoutes(app: express.Express) {
+  const routes: string[] = [];
+  app._router.stack.forEach((middleware: any) => {
+    if (middleware.route) {
+      // routes registered directly on the app
+      const methods = Object.keys(middleware.route.methods).join(",").toUpperCase();
+      routes.push(`${methods} ${middleware.route.path}`);
+    } else if (middleware.name === "router") {
+      // router middleware
+      middleware.handle.stack.forEach((handler: any) => {
+        const route = handler.route;
+        if (route) {
+          const methods = Object.keys(route.methods).join(",").toUpperCase();
+          routes.push(`${methods} ${route.path}`);
+        }
+      });
+    }
+  });
+  console.log("Registered routes:");
+  routes.forEach((r) => console.log(r));
+}
+
 // Initialize database connection and start server
 const startServer = async () => {
   try {
     await connectDatabase();
     app.listen(PORT, () => {
       console.log(`🚀 Server is running on port ${PORT}`);
+      printRoutes(app); // Print all registered routes at startup
     });
   } catch (error) {
     console.error("Failed to start server:", error);
