@@ -19,6 +19,7 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 // Configure CORS
 const allowedOrigins = [
   "https://ai-memory-five.vercel.app",
+  "https://ai-memory-five.vercel.app/share",
   "http://localhost:3000",
   "http://localhost:5173", // Add Vite dev server default port
 ];
@@ -53,8 +54,8 @@ app.get("/health", (req, res) => {
 // API Routes
 app.use("/api/v1", authRoutes);
 app.use("/api/v1/content", contentRoutes);
-app.use("/api/v1/brain", brainRoutes);
 app.use("/api/v1/query", queryRoutes);
+app.use("/api/v1/brain", brainRoutes);
 
 // 404 handler for API routes - FIX: Use a proper middleware pattern instead of "*" wildcard
 // This was likely causing the error - "*" with URLs is problematic in Express 4+
@@ -78,13 +79,13 @@ app.use((error: any, req: express.Request, res: express.Response, next: express.
 function printRoutes(app: express.Express) {
   try {
     const routes: string[] = [];
-    
+
     // Check if router exists before accessing its properties
     if (!app._router) {
       console.log("Router not initialized yet. No routes to print.");
       return;
     }
-    
+
     app._router.stack.forEach((middleware: any) => {
       if (middleware.route) {
         // routes registered directly on the app
@@ -101,7 +102,7 @@ function printRoutes(app: express.Express) {
         });
       }
     });
-    
+
     console.log("Registered routes:");
     routes.forEach((r) => console.log(r));
   } catch (error) {
@@ -113,7 +114,7 @@ function printRoutes(app: express.Express) {
 const startServer = async () => {
   try {
     await connectDatabase();
-    
+
     // Add routes here to ensure they're registered before calling printRoutes
     app.get("/debug-routes", (req, res) => {
       const routes: string[] = [];
@@ -125,10 +126,10 @@ const startServer = async () => {
       }
       res.json({ routes });
     });
-    
+
     const server = app.listen(PORT, () => {
       console.log(`🚀 Server is running on port ${PORT}`);
-      
+
       // Give Express a moment to fully initialize before printing routes
       setTimeout(() => {
         printRoutes(app);

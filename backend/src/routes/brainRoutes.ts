@@ -9,6 +9,6 @@ router.post("/share", userMiddleware, toggleShare);
 router.get("/share", userMiddleware, getShareStatus);
 
 // Public shared brain route (no auth required)
-router.get("/share/:hash", getSharedBrain);
+router.get("/:hash", getSharedBrain);
 
 export default router;
