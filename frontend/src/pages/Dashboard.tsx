@@ -15,8 +15,11 @@ import { useContent } from "../hooks/useContent";
 import axios from "axios";
 import { BACKEND_URL } from "../config";
 import { Footer } from "../components/Footer";
+import { UserProfile } from "../components/UserProfile";
+import { useNavigate } from "react-router-dom";
 
 export function Dashboard() {
+  const navigate = useNavigate();
   const [modalOpen, setModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
@@ -163,6 +166,10 @@ export function Dashboard() {
     setEditModalOpen(true);
   };
 
+  const handleSignout = () => {
+    navigate("/signin", { replace: true });
+  };
+
   const getEmptyStateContent = () => {
     switch (selectedContentType) {
       case "home":
@@ -275,6 +282,7 @@ export function Dashboard() {
             <Button startIcon={<QueryIcon />} variant="primary" size="md" text="Query your memory ?" onClick={() => setQueryModalOpen(true)} />
             <Button startIcon={<PlusIcon />} variant="primary" size="md" text="Add content" onClick={() => setModalOpen(true)} />
             <Button startIcon={<ShareIcon />} variant="secondary" size="md" text="Share Memory" onClick={handleShareModalOpen} />
+            <UserProfile onSignout={handleSignout} />
           </div>
 
           {/* Content Section with Border */}
@@ -282,7 +290,7 @@ export function Dashboard() {
             {content.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {content.map(({ _id, type, link, title, description }) => (
-                  <Card key={_id} _id={_id} title={title} link={link} type={type} description={description} onDelete={handleDeleteClick} onEdit={handleEditClick} />
+                  <Card key={_id} _id={_id} title={title} link={link} type={type as "link" | "youtube" | "twitter" | "pinterest" | "linkedin" | "instagram" | "document"} description={description} onDelete={handleDeleteClick} onEdit={handleEditClick} />
                 ))}
               </div>
             ) : (

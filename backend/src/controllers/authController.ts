@@ -97,3 +97,30 @@ export const signin = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+// Add new function to get user profile
+export const getUserProfile = async (req: Request, res: Response) => {
+  try {
+    const userId = req.userId;
+
+    if (!userId) {
+      res.status(401).json({ error: "User not authenticated" });
+      return;
+    }
+
+    const user = await User.findById(userId).select("username");
+
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    res.status(200).json({
+      username: user.username,
+      userId: user._id,
+    });
+  } catch (error) {
+    console.error("Get user profile error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
