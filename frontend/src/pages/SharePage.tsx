@@ -97,6 +97,7 @@ export function SharePage() {
                     type={type}
                     description={description}
                     onDelete={() => {}} // No delete functionality for shared content
+                    onEdit={() => {}} // No edit functionality for shared content
                   />
                 ))}
               </div>
