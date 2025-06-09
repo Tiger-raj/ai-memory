@@ -58,9 +58,9 @@ export function CreateContentModel({ open, onClose }: openProps) {
   return (
     <div>
       {open && (
-        <div className="w-screen h-screen bg-white/20 backdrop-blur-sm fixed top-0 left-0 flex justify-center z-50">
+        <div className="w-screen h-screen bg-white/20 backdrop-blur-sm fixed top-0 left-0 flex justify-center z-50" onClick={onClose}>
           <div className="flex flex-col justify-center">
-            <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
               <div className="flex justify-end mb-4">
                 <button onClick={onClose} className="text-gray-500 hover:text-gray-700 cursor-pointer">
                   <CrossIcon />
