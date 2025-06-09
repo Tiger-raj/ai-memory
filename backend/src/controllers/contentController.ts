@@ -9,6 +9,10 @@ const pc = new Pinecone({
   apiKey: process.env.PINECONE_API_KEY!,
 });
 
+// Fix: Extract URL components to variables to prevent confusion
+const PINECONE_INDEX_NAME = process.env.PINECONE_INDEX_NAME || "";
+const PINECONE_HOST = process.env.PINECONE_HOST || "";
+
 export const createContent = async (req: Request, res: Response) => {
   try {
     const validatedData = contentSchema.parse(req.body);
@@ -33,7 +37,7 @@ export const createContent = async (req: Request, res: Response) => {
     // Insert into Pinecone only if type is "document" and description is not null/empty
     if (type === "document" && description && description.trim() !== "") {
       try {
-        const namespace = pc.index(process.env.PINECONE_INDEX_NAME!, process.env.PINECONE_HOST!).namespace(user.username);
+        const namespace = pc.index(PINECONE_INDEX_NAME, PINECONE_HOST).namespace(user.username);
 
         await namespace.upsertRecords([
           {
@@ -125,7 +129,7 @@ export const deleteContent = async (req: Request, res: Response) => {
     // Delete from Pinecone if it was a document type
     if (existingContent.type === "document") {
       try {
-        const namespace = pc.index(process.env.PINECONE_INDEX_NAME!, process.env.PINECONE_HOST!).namespace(user.username);
+        const namespace = pc.index(PINECONE_INDEX_NAME, PINECONE_HOST).namespace(user.username);
 
         await namespace.deleteMany([contentId]);
         console.log(`✅ Document deleted from Pinecone: ${contentId}`);
@@ -193,7 +197,7 @@ export const editContent = async (req: Request, res: Response) => {
     // Update in Pinecone (only for document type)
     if (type === "document" && description && description.trim() !== "") {
       try {
-        const namespace = pc.index(process.env.PINECONE_INDEX_NAME!, process.env.PINECONE_HOST!).namespace(user.username);
+        const namespace = pc.index(PINECONE_INDEX_NAME, PINECONE_HOST).namespace(user.username);
 
         // Prepare the text content for embedding
         const textContent = description;

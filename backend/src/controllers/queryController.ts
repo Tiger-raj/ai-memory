@@ -12,6 +12,10 @@ const pc = new Pinecone({
 // Initialize Gemini AI
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
+// Fix: Using URL components as strings, let's extract them to prevent confusion
+const PINECONE_INDEX_NAME = process.env.PINECONE_INDEX_NAME || "";
+const PINECONE_HOST = process.env.PINECONE_HOST || "";
+
 export const handleQuery = async (req: Request, res: Response) => {
   try {
     // Validate input using Zod
@@ -25,8 +29,8 @@ export const handleQuery = async (req: Request, res: Response) => {
       return;
     }
 
-    // Search in Pinecone
-    const namespace = pc.index(process.env.PINECONE_INDEX_NAME!, process.env.PINECONE_HOST!).namespace(user.username);
+    // Search in Pinecone - Using extracted variables instead of inline
+    const namespace = pc.index(PINECONE_INDEX_NAME, PINECONE_HOST).namespace(user.username);
 
     let searchResults;
     try {
