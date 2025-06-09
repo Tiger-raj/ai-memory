@@ -10,7 +10,7 @@ export function Footer() {
 
           <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-6">
             <div className="text-sm text-gray-500">
-              © 2024 Ai-Memory. Built with ❤️ by{" "}
+              © 2025 Ai-Memory. Built with ❤️ by{" "}
               <a href="https://github.com/Tiger-raj" target="_blank" rel="noopener noreferrer" className="font-semibold text-purple-600 hover:text-purple-700 transition-colors">
                 Priyanshu Bajpai
               </a>

@@ -9,7 +9,7 @@ export function DemoModal({ open, onClose }: DemoModalProps) {
   if (!open) return null;
 
   // Convert Google Drive link to embeddable format
-  const embedUrl = "https://drive.google.com/file/d/1iBELkQYrK8BNpD0LqAeUGQnF7fNpiQAM/preview";
+  const embedUrl = "https://drive.google.com/file/d/1_gjrs7tXEi1I-pbtBHYh7F-0YF6kwXLN/preview";
 
   return (
     <div className="w-screen h-screen bg-black/70 backdrop-blur-sm fixed top-0 left-0 flex justify-center items-center z-50">
@@ -24,11 +24,11 @@ export function DemoModal({ open, onClose }: DemoModalProps) {
 
         {/* Video Content */}
         <div className="p-4">
-          <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
-            <iframe src={embedUrl} className="absolute top-0 left-0 w-full h-full rounded-lg" allow="autoplay" allowFullScreen title="Ai-Memory Demo Video" />
+          <div className="relative w-full h-96">
+            <iframe src={embedUrl} className="w-full h-full rounded-lg" allow="autoplay" allowFullScreen title="Ai-Memory Demo Video" />
           </div>
           <div className="mt-4 text-center">
-            <p className="text-gray-600 text-sm">Watch how Ai-Memory helps you organize and manage your digital content efficiently.</p>
+            <p className="text-gray-600 text-sm">Watch how Ai-Memory helps you organize and query your digital content with AI.</p>
           </div>
         </div>
       </div>

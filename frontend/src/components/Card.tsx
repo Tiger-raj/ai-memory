@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DeleteIcon } from "../icons/DeleteIcon";
 import { LinkIcon } from "../icons/LinkIcon";
 import { DocumentIcon } from "../icons/DocumentIcon";
@@ -23,6 +23,14 @@ interface CardProps {
 export function Card({ _id, title, link, type, description = "", onDelete, onEdit }: CardProps) {
   const isDeleteDisabled = !onDelete || onDelete.toString() === "() => {}";
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+
+  // Add useEffect to handle Twitter widget rendering
+  useEffect(() => {
+    if (type === "twitter" && link && window.twttr) {
+      // Force Twitter widgets to render
+      window.twttr.widgets.load();
+    }
+  }, [type, link]);
 
   const getTypeIcon = () => {
     switch (type) {
@@ -110,9 +118,11 @@ export function Card({ _id, title, link, type, description = "", onDelete, onEdi
           {type === "youtube" && link && <iframe className="w-full aspect-video" src={link.includes("youtu.be/") ? link.replace("youtu.be/", "www.youtube.com/embed/") : link.replace("watch?v=", "embed/")} title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen />}
 
           {type === "twitter" && link && (
-            <blockquote className="twitter-tweet">
-              <a href={link.replace("x.com", "twitter.com")}></a>
-            </blockquote>
+            <div className="twitter-embed-container">
+              <blockquote className="twitter-tweet" data-theme="light">
+                <a href={link.replace("x.com", "twitter.com")}></a>
+              </blockquote>
+            </div>
           )}
 
           {type === "document" && !link && <div className="bg-gray-50 p-3 rounded border text-gray-600 text-sm">Text document without external link</div>}

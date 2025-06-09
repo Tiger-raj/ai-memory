@@ -6,6 +6,7 @@ import { TwitterIcon } from "../icons/TwitterIcon";
 import { PinterestIcon } from "../icons/PinterestIcon";
 import { LinkedInIcon } from "../icons/LinkedInIcon";
 import { InstagramIcon } from "../icons/InstagramIcon";
+import { useEffect } from "react";
 
 interface ContentDetailsModalProps {
   open: boolean;
@@ -20,6 +21,16 @@ interface ContentDetailsModalProps {
 }
 
 export function ContentDetailsModal({ open, onClose, content }: ContentDetailsModalProps) {
+  // Add useEffect to handle Twitter widget rendering in modal
+  useEffect(() => {
+    if (open && content?.type === "twitter" && content?.link && window.twttr) {
+      // Small delay to ensure DOM is ready
+      setTimeout(() => {
+        window.twttr.widgets.load();
+      }, 100);
+    }
+  }, [open, content]);
+
   if (!open || !content) return null;
 
   const getTypeIcon = () => {
@@ -63,8 +74,8 @@ export function ContentDetailsModal({ open, onClose, content }: ContentDetailsMo
   };
 
   return (
-    <div className="w-screen h-screen bg-white/20 backdrop-blur-sm fixed top-0 left-0 flex justify-center items-center z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+    <div className="w-screen h-screen bg-white/20 backdrop-blur-sm fixed top-0 left-0 flex justify-center items-center z-50" onClick={onClose}>
+      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900 pr-4 flex-1">{content.title}</h3>
@@ -101,9 +112,11 @@ export function ContentDetailsModal({ open, onClose, content }: ContentDetailsMo
             {content.type === "youtube" && content.link && <iframe className="w-full aspect-video rounded-lg" src={content.link.includes("youtu.be/") ? content.link.replace("youtu.be/", "www.youtube.com/embed/") : content.link.replace("watch?v=", "embed/")} title="YouTube video player" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen />}
 
             {content.type === "twitter" && content.link && (
-              <blockquote className="twitter-tweet">
-                <a href={content.link.replace("x.com", "twitter.com")}></a>
-              </blockquote>
+              <div className="twitter-embed-container">
+                <blockquote className="twitter-tweet" data-theme="light" data-width="100%">
+                  <a href={content.link.replace("x.com", "twitter.com")}></a>
+                </blockquote>
+              </div>
             )}
 
             {content.type === "document" && !content.link && <div className="bg-gray-50 p-4 rounded-lg border text-gray-600">Text document without external link</div>}
