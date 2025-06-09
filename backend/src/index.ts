@@ -19,7 +19,6 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 // Configure CORS
 const allowedOrigins = [
   "https://ai-memory-five.vercel.app",
-  "https://ai-memory-five.vercel.app/share",
   "http://localhost:3000",
   "http://localhost:5173", // Add Vite dev server default port
 ];

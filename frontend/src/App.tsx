@@ -37,7 +37,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route path="/share/:hash" element={<SharePage />} />
+        <Route path="/brain/:hash" element={<SharePage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
