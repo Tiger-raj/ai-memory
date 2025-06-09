@@ -1,10 +1,11 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "../components/Button";
 import { Input } from "../components/Input";
 import { PasswordInput } from "../components/PasswordInput";
 import axios from "axios";
 import { BACKEND_URL } from "../config";
 import { useNavigate, Link } from "react-router-dom";
+import { Logo } from "../icons/Logo";
 
 export function Signin() {
   const usernameRef = useRef<HTMLInputElement>(null);
@@ -21,6 +22,11 @@ export function Signin() {
     general: undefined,
   });
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    // Clear any existing token when accessing signin page
+    localStorage.removeItem("token");
+  }, []);
 
   async function handleSignin() {
     const username = usernameRef.current?.value;
@@ -39,7 +45,7 @@ export function Signin() {
       const jwt = response.data.token;
       localStorage.setItem("token", jwt);
       // redirect to dashboard
-      navigate("/dashboard");
+      navigate("/dashboard", { replace: true });
       console.log("Signin successful:", response.data);
     } catch (error: unknown) {
       console.error("Signin failed:", error);
@@ -72,27 +78,75 @@ export function Signin() {
   }
 
   return (
-    <div className="h-screen w-screen bg-gray-200 flex justify-center items-center">
-      <div className="bg-white rounded-xl w-96 p-8 shadow-lg">
-        <h1 className="text-2xl font-bold text-center mb-6">Sign In</h1>
-
-        {errors.general && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 break-words leading-relaxed">{errors.general}</div>}
-
-        <Input placeholder="Username" ref={usernameRef} error={errors.username} />
-        <PasswordInput placeholder="Password" ref={passwordRef} error={errors.password} />
-
-        <div className="flex justify-center items-center mt-4">
-          <Button loading={loading} variant="primary" size="md" text={loading ? "Signing In..." : "Sign In"} onClick={handleSignin} fullWidth />
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 flex flex-col">
+      {/* Header */}
+      <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center">
+              <div className="text-purple-600">
+                <Logo />
+              </div>
+              <span className="ml-2 text-xl font-bold text-gray-900">Ai-Memory</span>
+            </div>
+            <div className="flex items-center space-x-4">
+              <Button variant="secondary" size="md" text="Sign Up" onClick={() => navigate("/signup")} />
+              <Button variant="secondary" size="md" text="Home" onClick={() => navigate("/")} />
+            </div>
+          </div>
         </div>
-        <div style={{ textAlign: "center", marginTop: "20px" }}>
-          <p>
-            Not a user?{" "}
-            <Link to="/signup" style={{ color: "#007bff", textDecoration: "none" }}>
-              Sign up
-            </Link>
-          </p>
+      </header>
+
+      {/* Main Content */}
+      <div className="flex-1 flex justify-center items-center py-12 px-4">
+        <div className="bg-white rounded-2xl w-full max-w-md p-8 shadow-xl border border-gray-100">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
+            <p className="text-gray-600">Sign in to access your digital memory</p>
+          </div>
+
+          {errors.general && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6 break-words leading-relaxed">{errors.general}</div>}
+
+          <div className="space-y-4">
+            <Input placeholder="Username" ref={usernameRef} error={errors.username} />
+            <PasswordInput placeholder="Password" ref={passwordRef} error={errors.password} />
+
+            <Button loading={loading} variant="primary" size="md" text={loading ? "Signing In..." : "Sign In"} onClick={handleSignin} fullWidth />
+
+            <div className="text-center pt-4">
+              <p className="text-gray-600">
+                Don't have an account?{" "}
+                <Link to="/signup" className="text-purple-600 hover:text-purple-500 font-medium transition-colors">
+                  Create one here
+                </Link>
+              </p>
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-12 mt-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="flex items-center mb-4 md:mb-0">
+              <div className="text-purple-400">
+                <Logo />
+              </div>
+              <span className="ml-2 text-xl font-bold">Ai-Memory</span>
+            </div>
+            <div className="text-gray-400 text-center md:text-right">
+              <p>
+                &copy; 2025 Ai-Memory. Built with passion by{" "}
+                <a href="https://github.com/Tiger-raj" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:text-purple-300 font-semibold transition-colors underline">
+                  Priyanshu Bajpai
+                </a>
+                , for better digital organization.
+              </p>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

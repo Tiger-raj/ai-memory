@@ -14,6 +14,7 @@ import { Sidebar } from "../components/Sidebar";
 import { useContent } from "../hooks/useContent";
 import axios from "axios";
 import { BACKEND_URL } from "../config";
+import { Footer } from "../components/Footer";
 
 export function Dashboard() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -234,7 +235,7 @@ export function Dashboard() {
       </div>
 
       {/* Main content area */}
-      <div className={`min-h-screen bg-gray-100 transition-all duration-300 ${mobileMenuOpen ? "blur-sm md:blur-none" : ""} ml-0 md:ml-72`}>
+      <div className={`min-h-screen bg-gray-100 transition-all duration-300 ${mobileMenuOpen ? "blur-sm md:blur-none" : ""} ml-0 md:ml-72 flex flex-col`}>
         {/* Mobile header with menu button */}
         <div className="md:hidden bg-white shadow-sm p-4 flex items-center justify-between">
           <button onClick={() => setMobileMenuOpen(true)} className="text-gray-700 hover:text-gray-900 transition-colors">
@@ -244,7 +245,8 @@ export function Dashboard() {
           <div className="w-6"></div> {/* Spacer for center alignment */}
         </div>
 
-        <div className="p-4">
+        {/* Main content */}
+        <div className="flex-1 p-4">
           <CreateContentModel
             open={modalOpen}
             onClose={() => {
@@ -298,6 +300,9 @@ export function Dashboard() {
             )}
           </div>
         </div>
+
+        {/* Footer */}
+        <Footer />
       </div>
     </div>
   );

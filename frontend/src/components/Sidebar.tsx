@@ -19,7 +19,10 @@ interface SidebarProps {
 
 export function Sidebar({ onContentTypeChange, selectedType, onClose }: SidebarProps) {
   return (
-    <div className="h-screen bg-white border-r w-72 left-0 top-0 pl-6 flex flex-col justify-between">
+    <div className="h-screen bg-white border-r-4 border-purple-200 shadow-lg w-72 left-0 top-0 pl-6 flex flex-col justify-between relative rounded-r-2xl overflow-hidden">
+      {/* Decorative border accent */}
+      <div className="absolute top-0 right-0 h-full w-1 bg-gradient-to-b from-purple-400 via-purple-500 to-purple-600 rounded-full"></div>
+
       <div>
         <div className="flex items-center justify-between text-2xl pt-8">
           <div className="flex items-center">
