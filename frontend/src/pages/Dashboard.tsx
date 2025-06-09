@@ -5,6 +5,7 @@ import { CreateContentModel } from "../components/CreateContentModel";
 import { DeleteConfirmationModal } from "../components/DeleteConfirmationModal";
 import { ShareMemoryModal } from "../components/ShareMemoryModal";
 import { QueryModal } from "../components/QueryModal";
+import { EditContentModal } from "../components/EditContentModal";
 import { PlusIcon } from "../icons/PlusIcon";
 import { ShareIcon } from "../icons/ShareIcon";
 import { SidebarIcon } from "../icons/SidebarIcon";
@@ -19,8 +20,16 @@ export function Dashboard() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [queryModalOpen, setQueryModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedContentType, setSelectedContentType] = useState<string>("home");
   const [contentToDelete, setContentToDelete] = useState<{ id: string; title: string } | null>(null);
+  const [contentToEdit, setContentToEdit] = useState<{
+    _id: string;
+    title: string;
+    link: string;
+    type: string;
+    description?: string;
+  } | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [shareLoading, setShareLoading] = useState(false);
@@ -148,6 +157,11 @@ export function Dashboard() {
     setShareModalLoading(false);
   };
 
+  const handleEditClick = (content: { _id: string; title: string; link: string; type: string; description?: string }) => {
+    setContentToEdit(content);
+    setEditModalOpen(true);
+  };
+
   const getEmptyStateContent = () => {
     switch (selectedContentType) {
       case "home":
@@ -239,6 +253,16 @@ export function Dashboard() {
             }}
           />
 
+          <EditContentModal
+            open={editModalOpen}
+            onClose={() => {
+              setEditModalOpen(false);
+              setContentToEdit(null);
+              fetchContent();
+            }}
+            content={contentToEdit}
+          />
+
           <DeleteConfirmationModal open={deleteModalOpen} onClose={handleDeleteCancel} onConfirm={handleDeleteConfirm} title={contentToDelete?.title || ""} />
 
           <ShareMemoryModal open={shareModalOpen} onClose={() => setShareModalOpen(false)} shareUrl={shareUrl} onEnableSharing={handleEnableSharing} onDisableSharing={handleDisableSharing} isLoading={shareLoading} isModalLoading={shareModalLoading} />
@@ -256,7 +280,7 @@ export function Dashboard() {
             {content.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {content.map(({ _id, type, link, title, description }) => (
-                  <Card key={_id} _id={_id} title={title} link={link} type={type} description={description} onDelete={handleDeleteClick} />
+                  <Card key={_id} _id={_id} title={title} link={link} type={type} description={description} onDelete={handleDeleteClick} onEdit={handleEditClick} />
                 ))}
               </div>
             ) : (

@@ -8,6 +8,7 @@ import { PinterestIcon } from "../icons/PinterestIcon";
 import { LinkedInIcon } from "../icons/LinkedInIcon";
 import { InstagramIcon } from "../icons/InstagramIcon";
 import { ContentDetailsModal } from "./ContentDetailsModal";
+import { EditIcon } from "../icons/EditIcon";
 
 interface CardProps {
   _id: string;
@@ -16,9 +17,10 @@ interface CardProps {
   type: string;
   description?: string;
   onDelete: (id: string, title: string) => void;
+  onEdit: (content: { _id: string; title: string; link: string; type: string; description?: string }) => void;
 }
 
-export function Card({ _id, title, link, type, description = "", onDelete }: CardProps) {
+export function Card({ _id, title, link, type, description = "", onDelete, onEdit }: CardProps) {
   const isDeleteDisabled = !onDelete || onDelete.toString() === "() => {}";
   const [showDetailsModal, setShowDetailsModal] = useState(false);
 
@@ -75,8 +77,8 @@ export function Card({ _id, title, link, type, description = "", onDelete }: Car
       <div className="bg-white rounded-md border border-gray-300 p-4 w-full min-h-48">
         <div className="flex justify-between mb-4">
           <div className="flex items-center flex-1 min-w-0">
-            <div className="text-gray-500 pr-2 flex-shrink-0 cursor-pointer hover:text-purple-600 transition-colors" onClick={() => setShowDetailsModal(true)} title="View details">
-              {getTypeIcon()}
+            <div className="text-gray-500 pr-2 flex-shrink-0 cursor-pointer hover:text-purple-600 transition-colors" onClick={() => onEdit({ _id, title, link, type, description })} title="Edit content">
+              <EditIcon />
             </div>
             <span className="truncate">{title}</span>
           </div>

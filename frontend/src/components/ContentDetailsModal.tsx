@@ -68,7 +68,7 @@ export function ContentDetailsModal({ open, onClose, content }: ContentDetailsMo
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900 pr-4 flex-1">{content.title}</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0">
+          <button onClick={onClose} className="text-gray-400 cursor-pointer hover:text-gray-600 transition-colors flex-shrink-0">
             <CrossIcon />
           </button>
         </div>

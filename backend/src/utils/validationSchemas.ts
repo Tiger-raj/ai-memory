@@ -34,3 +34,11 @@ export const shareSchema = z.object({
 export const querySchema = z.object({
   query: z.string().min(1, "Query is required").max(500, "Query must be at most 500 characters"),
 });
+
+export const editContentSchema = z.object({
+  contentId: z.string().min(1, "Content ID is required"),
+  title: z.string().min(1, "Title is required").max(200, "Title must be less than 200 characters"),
+  link: z.string().url("Invalid URL format").optional().or(z.literal("")),
+  type: z.enum(["youtube", "twitter", "pinterest", "linkedin", "document", "link", "instagram"]),
+  description: z.string().max(1000, "Description must be less than 1000 characters").optional(),
+});

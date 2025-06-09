@@ -17,6 +17,7 @@ export function CreateContentModel({ open, onClose }: openProps) {
   const linkRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const [type, setType] = useState<ContentType>("document");
+  const [isLoading, setIsLoading] = useState(false);
 
   async function addContent() {
     const title = titleRef.current?.value;
@@ -41,6 +42,7 @@ export function CreateContentModel({ open, onClose }: openProps) {
       description: description || "",
     };
 
+    setIsLoading(true);
     try {
       await axios.post(`${BACKEND_URL}/api/v1/content`, content, {
         headers: {
@@ -52,6 +54,9 @@ export function CreateContentModel({ open, onClose }: openProps) {
       onClose();
     } catch (error) {
       console.error("Error adding content:", error);
+      alert("Failed to add content. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -62,7 +67,7 @@ export function CreateContentModel({ open, onClose }: openProps) {
           <div className="flex flex-col justify-center">
             <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
               <div className="flex justify-end mb-4">
-                <button onClick={onClose} className="text-gray-500 hover:text-gray-700 cursor-pointer">
+                <button onClick={onClose} className="text-gray-500 hover:text-gray-700 cursor-pointer" disabled={isLoading}>
                   <CrossIcon />
                 </button>
               </div>
@@ -73,7 +78,7 @@ export function CreateContentModel({ open, onClose }: openProps) {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Content Type</label>
-                  <select value={type} onChange={(e) => setType(e.target.value as ContentType)} className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                  <select value={type} onChange={(e) => setType(e.target.value as ContentType)} className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" disabled={isLoading}>
                     <option value="document">Document</option>
                     <option value="youtube">YouTube</option>
                     <option value="twitter">Twitter</option>
@@ -84,19 +89,29 @@ export function CreateContentModel({ open, onClose }: openProps) {
                   </select>
                 </div>
 
-                <Input ref={linkRef} placeholder={type === "document" ? "Enter link (optional)" : "Enter content link"} />
+                <div>
+                  <input ref={linkRef} type="text" placeholder={type === "document" ? "Enter link (optional)" : "Enter content link"} className={`border rounded px-4 py-2 m-2 w-full border-gray-300 ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`} disabled={isLoading} />
+                </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Description (Optional)</label>
-                  <textarea ref={descriptionRef} placeholder="Enter content description..." className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-vertical" rows={4} maxLength={1000} />
+                  <textarea ref={descriptionRef} placeholder="Enter content description..." className={`w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-vertical ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`} rows={4} maxLength={1000} disabled={isLoading} />
                   <p className="text-xs text-gray-500 mt-1">Maximum 1000 characters</p>
                 </div>
 
                 {type === "document" && <p className="text-sm text-gray-500">For documents, you can leave the link empty if you just want to store text content.</p>}
               </div>
 
+              {/* Loading feedback */}
+              {isLoading && (
+                <div className="flex items-center justify-center mt-4 p-3 bg-purple-50 rounded-lg border border-purple-200">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-600 mr-3"></div>
+                  <span className="text-purple-700 font-medium">Adding your content...</span>
+                </div>
+              )}
+
               <div className="flex justify-center mt-6">
-                <Button variant="primary" size="md" text="Add Content" onClick={addContent} />
+                <Button variant="primary" size="md" text={isLoading ? "Adding Content..." : "Add Content"} onClick={addContent} loading={isLoading} />
               </div>
             </div>
           </div>
