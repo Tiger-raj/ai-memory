@@ -6,6 +6,7 @@ import { LandingPage } from "./pages/LandingPage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { PublicRoute } from "./components/PublicRoute";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { NotFoundPage } from "./pages/NotFoundPage";
 
 function App() {
   return (
@@ -37,7 +38,7 @@ function App() {
           }
         />
         <Route path="/share/:hash" element={<SharePage />} />
-        <Route path="*" element={<LandingPage />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
   );
