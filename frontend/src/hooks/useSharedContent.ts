@@ -32,8 +32,8 @@ export function useSharedContent(hash?: string) {
         setLoading(true);
         setError(null);
 
-        // Updated to use the new route path
-        const response = await axios.get(`${BACKEND_URL}/api/v1/brain/shared/${hash}`);
+        // Updated to use the correct route path
+        const response = await axios.get(`${BACKEND_URL}/api/v1/brain/${hash}`);
         setSharedData(response.data);
       } catch (error: unknown) {
         console.error("Error fetching shared content:", error);

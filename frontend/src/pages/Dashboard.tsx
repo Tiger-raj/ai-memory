@@ -53,7 +53,7 @@ export function Dashboard() {
         },
       });
       if (response.data.hash) {
-        setShareUrl(`${window.location.origin}/share/${response.data.hash}`);
+        setShareUrl(`${window.location.origin}/brain/${response.data.hash}`);
       } else {
         setShareUrl(null);
       }
@@ -77,7 +77,7 @@ export function Dashboard() {
         }
       );
       const hash = response.data.hash || response.data.shareLink;
-      const newShareUrl = `${window.location.origin}/share/${hash}`;
+      const newShareUrl = `${window.location.origin}/brain/${hash}`;
       setShareUrl(newShareUrl);
     } catch (error) {
       console.error("Error enabling sharing:", error);
