@@ -70,25 +70,41 @@ export const getShareStatus = async (req: Request, res: Response) => {
 };
 
 export const getSharedBrain = async (req: Request, res: Response) => {
-  const shareLink = req.params.shareLink;
-  const link = await Link.findOne({ hash: shareLink });
-  const userId = link?.userId?.toString();
-  if (!userId) {
-    res.status(404).json({ error: "Share link not found" });
-    return;
+  try {
+    const hash = req.params.hash;
+
+    if (!hash) {
+      res.status(400).json({ error: "Share hash is required" });
+      return;
+    }
+
+    const link = await Link.findOne({ hash: hash });
+
+    if (!link) {
+      res.status(404).json({ error: "Share link not found" });
+      return;
+    }
+
+    const userId = link.userId?.toString();
+    if (!userId) {
+      res.status(404).json({ error: "Invalid share link" });
+      return;
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    const content = await Content.find({ userId: userId });
+
+    res.json({
+      username: user.username,
+      content: content || [],
+    });
+  } catch (error) {
+    console.error("Get shared brain error:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
-  const user = await User.findById(userId);
-  if (!user) {
-    res.status(404).json({ error: "User not found" });
-    return;
-  }
-  const content = await Content.find({ userId: userId });
-  if (!content) {
-    res.status(404).json({ error: "No content found for this share link" });
-    return;
-  }
-  res.json({
-    username: user.username,
-    content: content,
-  });
 };

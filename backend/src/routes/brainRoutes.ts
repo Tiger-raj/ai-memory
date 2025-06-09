@@ -6,6 +6,6 @@ const router = Router();
 
 router.post("/share", userMiddleware, toggleShare);
 router.get("/share", userMiddleware, getShareStatus);
-router.get("/:shareLink", getSharedBrain);
+router.get("/:hash", getSharedBrain);
 
 export default router;
