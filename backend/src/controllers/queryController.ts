@@ -30,9 +30,25 @@ export const handleQuery = async (req: Request, res: Response) => {
 
     let searchResults;
     try {
+      // First, get the total number of documents in the user's namespace
+      const statsResponse = await namespace.describeIndexStats();
+      const totalDocuments = statsResponse.namespaces?.[user.username]?.recordCount || 0;
+
+      // Dynamic topK calculation based on industry standards
+      const calculateTopK = (totalDocs: number): number => {
+        if (totalDocs === 0) return 1;
+        if (totalDocs <= 10) return Math.min(3, totalDocs); // For very small collections
+        if (totalDocs <= 50) return Math.min(5, Math.ceil(totalDocs * 0.3)); // 30% for small collections
+        if (totalDocs <= 200) return Math.min(10, Math.ceil(totalDocs * 0.1)); // 10% for medium collections
+        if (totalDocs <= 1000) return Math.min(15, Math.ceil(totalDocs * 0.05)); // 5% for large collections
+        return Math.min(20, Math.ceil(totalDocs * 0.02)); // 2% for very large collections, max 20
+      };
+
+      const dynamicTopK = calculateTopK(totalDocuments);
+
       const searchResponse = await namespace.searchRecords({
         query: {
-          topK: 3,
+          topK: dynamicTopK,
           inputs: { text: query },
         },
         fields: ["text", "category"],
@@ -64,7 +80,23 @@ export const handleQuery = async (req: Request, res: Response) => {
     try {
       const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
 
-      const prompt = `You are a teaching assistant. You need to answer query followed by the word "QUERY :" using the context provided after the word "CONTEXT :". Please don't include any star in the response, don't bold any text and give a decent length response and don't include headings and all, just give proper paragraph response. CONTEXT : ${context}  QUERY : ${query}`;
+      const prompt = `You are an intelligent assistant helping users understand and extract insights from their personal digital memory collection. Your role is to provide helpful, accurate, and contextual responses based on their saved content.
+
+INSTRUCTIONS:
+- Analyze the provided context from the user's saved documents
+- Answer the query using primarily the context provided, supplemented with your knowledge when helpful
+- Provide comprehensive yet concise responses (100-150 words)
+- Use a conversational, helpful tone
+- Format responses in clear, readable paragraphs without headings or bullet points
+- Avoid markdown formatting, asterisks, or bold text
+- If context is limited or missing, acknowledge this and provide general knowledge while being transparent about the source
+
+CONTEXT FROM USER'S MEMORY:
+${context}
+
+USER QUERY: ${query}
+
+Please provide a thoughtful response that helps the user understand the topic based on their saved content and relevant knowledge.`;
 
       const result = await model.generateContent(prompt);
       const aiResponse = result.response.text();
