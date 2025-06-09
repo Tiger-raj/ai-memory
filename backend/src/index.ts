@@ -12,7 +12,16 @@ const PORT = process.env.PORT || 5000;
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+
+// Configure CORS to allow only specific origins
+const allowedOrigins = [process.env.FRONTEND_URL, "http://localhost:3000"].filter((origin): origin is string => Boolean(origin)); // Remove any undefined values
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  })
+);
 
 // Routes
 app.use("/api/v1", authRoutes);
