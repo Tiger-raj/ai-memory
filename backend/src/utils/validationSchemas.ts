@@ -30,3 +30,7 @@ export const contentSchema = z.object({
 export const shareSchema = z.object({
   share: z.boolean(),
 });
+
+export const querySchema = z.object({
+  query: z.string().min(1, "Query is required").max(500, "Query must be at most 500 characters"),
+});

@@ -1,13 +1,27 @@
 import { Request, Response } from "express";
 import { Content } from "../models/Content";
+import { User } from "../models/User"; // Add this import
 import { contentSchema } from "../utils/validationSchemas";
+import { Pinecone } from "@pinecone-database/pinecone";
+
+// Initialize Pinecone
+const pc = new Pinecone({
+  apiKey: process.env.PINECONE_API_KEY!,
+});
 
 export const createContent = async (req: Request, res: Response) => {
   try {
     const validatedData = contentSchema.parse(req.body);
     const { link, title, type, description } = validatedData;
 
-    await Content.create({
+    // Fetch user data to get username for namespace
+    const user = await User.findById(req.userId);
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    const createdContent = await Content.create({
       link: link || "",
       type: type || "document",
       title,
@@ -16,8 +30,27 @@ export const createContent = async (req: Request, res: Response) => {
       tags: [],
     });
 
+    // Insert into Pinecone only if type is "document" and description is not null/empty
+    if (type === "document" && description && description.trim() !== "") {
+      try {
+        const namespace = pc.index(process.env.PINECONE_INDEX_NAME!, process.env.PINECONE_HOST!).namespace(user.username);
+
+        await namespace.upsertRecords([
+          {
+            _id: createdContent._id.toString(),
+            text: description,
+            category: title,
+          },
+        ]);
+        console.log(`Content successfully upserted to Pinecone namespace: ${user.username}`);
+      } catch (pineconeError) {
+        console.error("❌ Pinecone upsert operation failed:", pineconeError);
+      }
+    }
+
     res.status(201).json({
       message: "Content created successfully",
+      contentId: createdContent._id,
     });
   } catch (error: any) {
     // Handle Zod validation errors

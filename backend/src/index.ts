@@ -5,6 +5,7 @@ import { connectDatabase } from "./config/database";
 import authRoutes from "./routes/authRoutes";
 import contentRoutes from "./routes/contentRoutes";
 import brainRoutes from "./routes/brainRoutes";
+import queryRoutes from "./routes/queryRoutes";
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ app.use(cors());
 app.use("/api/v1", authRoutes);
 app.use("/api/v1/content", contentRoutes);
 app.use("/api/v1/brain", brainRoutes);
+app.use("/api/v1/query", queryRoutes);
 
 // Initialize database connection and start server
 const startServer = async () => {
