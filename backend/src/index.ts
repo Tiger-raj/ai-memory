@@ -8,6 +8,7 @@ import brainRoutes from "./routes/brainRoutes";
 import queryRoutes from "./routes/queryRoutes";
 
 dotenv.config();
+const PORT = process.env.PORT || 5000;
 
 const app = express();
 app.use(express.json());
@@ -23,8 +24,8 @@ app.use("/api/v1/query", queryRoutes);
 const startServer = async () => {
   try {
     await connectDatabase();
-    app.listen(3000, () => {
-      console.log("Server is running on http://localhost:3000");
+    app.listen(PORT, () => {
+      console.log(`Server is running on ${PORT}`);
     });
   } catch (error) {
     console.error("Failed to start server:", error);
