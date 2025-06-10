@@ -51,7 +51,7 @@ export function QueryModal({ open, onClose }: QueryModalProps) {
       });
     } catch (error) {
       console.error("Error processing query:", error);
-      setResponse("Sorry, I encountered an error while processing your query. Please try again.");
+      setResponse("Sorry, I encountered an error while processing your query. Please try again. Make sure to have at least 3 non-empty description notes in your memory with type as document.");
     } finally {
       setIsLoading(false);
     }
@@ -96,7 +96,7 @@ export function QueryModal({ open, onClose }: QueryModalProps) {
             <label className="block text-sm font-medium text-gray-700 mb-2">Ask AI about your saved content</label>
             <textarea ref={queryRef} placeholder="What are the health benefits of eating fruits?" className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-vertical" rows={3} maxLength={1000} />
             <p className="text-xs text-gray-500 mt-1">Maximum 1000 characters</p>
-            <p className="text-xs text-red-600 mt-2">📝 Currently, queries are only supported for document-type content in your memory.</p>
+            <p className="text-sm text-red-600 mt-2">📝 Currently, queries are only supported for document-type content in your memory having non-empty descriptions.</p>
           </div>
 
           {/* Send Button */}
