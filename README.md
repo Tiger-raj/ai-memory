@@ -295,11 +295,11 @@ ai-memory/
 ### Live Application
 
 - **Frontend**: Deployed on Vercel at [https://ai-memory-five.vercel.app/](https://ai-memory-five.vercel.app/)
-- **Backend**: Deployed on Railway/Heroku with MongoDB Atlas
+- **Backend**: Deployed on Render with MongoDB Atlas
 
-### Backend Deployment (Railway/Heroku)
+### Backend Deployment (Render)
 
-1. Set environment variables in your hosting platform
+1. Set environment variables in your Render dashboard
 2. Deploy from GitHub repository
 3. Ensure MongoDB Atlas connection
 
@@ -335,7 +335,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Pinecone for vector database services
 - MongoDB for database hosting
 - Vercel for frontend deployment
-- Railway for backend deployment
+- Render for backend deployment
 
 ---
 
