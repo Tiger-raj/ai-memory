@@ -82,7 +82,7 @@ export const handleQuery = async (req: Request, res: Response) => {
 
     // Generate response using Gemini AI
     try {
-      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
       const prompt = `You are an intelligent assistant helping users understand and extract insights from their personal digital memory collection. Your role is to provide helpful, accurate, and contextual responses based on their saved content.
 
